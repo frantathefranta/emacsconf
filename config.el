@@ -132,15 +132,9 @@
 (after! org-roam
 (org-roam-db-autosync-mode) ;; Syncs the org-roam database on startup, will fail if emacs-sql doesn't exists yet. To fix, run the command manually
 (setq org-roam-capture-templates
-      '(("d" "Plain Note" plain "%?"
+      '(("d" "Docs Note" plain "%?"
          :if-new
-         (file+head "${slug}.org" "#+title: ${title}\n")
-         :immediate-finish t
-         :unnarrowed t)
-        ("s" "Command" plain
-         "* %?:\n#+BEGIN_SRC sh\n\n#+END_SRC"
-         :if-new (file+head "docs/${slug}.org"
-                            "#+title: ${title}\n#+filetags: docs")
+         (file+head "docs/${slug}.org" "#+title: ${title}\n")
          :immediate-finish t
          :unnarrowed t)
         ("w" "Work notes" plain "%?"
