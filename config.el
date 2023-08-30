@@ -95,6 +95,7 @@
 ;;         ("work.org" :regexp . "\\(?:\\(?:Note\\|Task\\)s\\)")))
 (setq org-refile-use-outline-path 'file)
 (setq org-outline-path-complete-in-steps nil))
+;; Much of the org setup was copied from here https://github.com/rougier/emacs-gtd
 (after! org-agenda
 (setq org-agenda-span 'day)
 (setq org-agenda-start-day nil)
