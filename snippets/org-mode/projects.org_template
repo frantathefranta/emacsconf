@@ -1,0 +1,24 @@
+# -*- mode: snippet -*-
+# name: projects.org template
+# uuid:
+# key: <p
+# condition: t
+# --
+**  $0$1 [/]  $3
+    :PROPERTIES:
+    :CATEGORY:  $2
+    :VISIBILITY: hide
+    :COOKIE_DATA: recursive todo
+    :END:
+*** *Information* :info:
+    :PROPERTIES:
+    :VISIBILITY: hide
+    :END:
+*** *Notes* :notes:
+    :PROPERTIES:
+    :VISIBILITY: hide
+    :END:
+*** *Tasks* :tasks:
+    :PROPERTIES:
+    :VISIBILITY: content
+    :END:

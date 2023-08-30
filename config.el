@@ -1,0 +1,253 @@
+;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+
+;; Place your private configuration here! Remember, you do not need to run 'doom
+;; sync' after modifying this file!
+
+
+;; Some functionality uses this to identify you, e.g. GPG configuration, email
+;; clients, file templates and snippets. It is optional.
+(setq user-full-name "Franta Bartik"
+      user-mail-address "fb@franta.us")
+;; Doom exposes five (optional) variables for controlling fonts in Doom:
+;;
+;; - `doom-font' -- the primary font to use
+;; - `doom-variable-pitch-font' -- a non-monospace font (where applicable)
+;; - `doom-big-font' -- used for `doom-big-font-mode'; use this for
+;;   presentations or streaming.
+;; - `doom-unicode-font' -- for unicode glyphs
+;; - `doom-serif-font' -- for the `fixed-pitch-serif' face
+;;
+;; See 'C-h v doom-font' for documentation and more examples of what they
+;; accept. For example:
+;;
+;; (when (doom-font-exists-p "Iosevka Custom")
+(setq doom-font                (font-spec :name "IosevkaCustom Nerd Font Mono" :width 'expanded :size 17))
+(when (doom-font-exists-p "EtBembo")
+    (setq doom-variable-pitch-font (font-spec :name "EtBembo")))
+;; Hasklug doesn't work for Emacs for some reason, it makes the highlighted lines jump back on forth
+;; (setq doom-font (font-spec :family "Hasklug Nerd Font" :size 16))
+     ;; doom-variable-pitch-font (font-spec :family "Hasklug Nerd Font" :size 16))
+
+;;
+;; If you or Emacs can't find your font, use 'M-x describe-font' to look them
+;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
+;; refresh your font settings. If Emacs still can't find your font, it likely
+;; wasn't installed correctly. Font issues are rarely Doom issues!
+
+;; There are two ways to load a theme. Both assume the theme is installed and
+;; available. You can either set `doom-theme' or manually load a theme with the
+;; `load-theme' function. This is the default:
+(setq doom-theme 'humanoid-light)
+;; (custom-theme-set-faces!
+;; 'doom-feather-light
+;; '(org-level-4 :inherit outline-4 :height 1.1)
+;; '(org-level-3 :inherit outline-3 :height 1.2)
+;; '(org-level-2 :inherit outline-2 :height 1.3)
+;; '(org-level-1 :inherit outline-1 :height 1.4)
+;; '(org-document-title :height 1.5 :underline nil))
+(toggle-debug-on-error)
+;; This determines the style of line numbers in effect. If set to `nil', line
+;; numbers are disabled. For relative line numbers, set this to `relative'.
+(setq display-line-numbers-grow-only   t
+      display-line-numbers-type        'relative
+      display-line-numbers-width-start t)
+(setq flycheck-disabled-checkers '(proselint))
+;; If you use `org' and don't want your org files in the default location below,
+;; change `org-directory'. It must be set before org loads!
+;; (setq org-agenda-hide-tags-regexp ".")
+(setq org-directory "~/syncthing/org/")
+(setq org-agenda-files (list "~/syncthing/org/inbox.org"
+                             "~/syncthing/org/agenda.org"
+                             "~/syncthing/org/projects.org"
+                             "~/syncthing/org/work.org"
+                             "~/git/organised_exchange/exchange.org"))
+;; general org settings
+(after! org
+(setq org-capture-templates
+       `(
+         ("i" "Inbox" entry  (file "~/syncthing/org/inbox.org")
+        ,(concat "* TODO %?\n"
+                 "/Entered on/ %U"))
+         ("s" "Slipbox" entry  (file "~/syncthing/org/org-roam/inbox.org")
+        ,(concat "* %?\n"
+                 "/Entered on/ %U"))))
+(setq org-log-done 'time)
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|" "DONE(d)")))
+
+;; (defun log-todo-next-creation-date (&rest ignore)
+;;   "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
+;;   (when (and (string= (org-get-todo-state) "NEXT")
+;;              (not (org-entry-get nil "ACTIVATED")))
+;;     (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
+
+;; (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
+
+)
+
+
+
+;; )
+;; org-refile
+(after! org-refile
+;; (setq org-refile-targets
+;;       '(("projects.org" :regexp . "\\(?:\\(?:Note\\|Task\\)s\\)")
+;;         ("work.org" :regexp . "\\(?:\\(?:Note\\|Task\\)s\\)")))
+(setq org-refile-use-outline-path 'file)
+(setq org-outline-path-complete-in-steps nil))
+(after! org-agenda
+(setq org-agenda-span 'day)
+(setq org-agenda-start-day nil)
+
+;; (setq org-agenda-custom-commands
+;;       '(("g" "Get Things Done (GTD)"
+;;          ((agenda ""
+;;                   ((org-agenda-skip-function
+;;                     '(org-agenda-skip-entry-if 'deadline))
+;;                    (org-deadline-warning-days 0)))
+;;           (todo "NEXT"
+;;                 ((org-agenda-skip-function
+;;                   '(org-agenda-skip-entry-if 'deadline))
+;;                  (org-agenda-prefix-format "  %i %-12:c [%e] ")
+;;                  (org-agenda-overriding-header "\nTasks\n")))
+;;           (agenda nil
+;;                   ((org-agenda-entry-types '(:deadline))
+;;                    (org-agenda-format-date "")
+;;                    (org-deadline-warning-days 7)
+;;                    (org-agenda-skip-function
+;;                     '(org-agenda-skip-entry-if 'notregexp "\\* NEXT"))
+;;                    (org-agenda-overriding-header "\nDeadlines")))
+;;           (tags-todo "inbox"
+;;                      ((org-agenda-prefix-format "  %?-12t% s")
+;;                       (org-agenda-overriding-header "\nInbox\n")))
+;;           (tags "CLOSED>=\"<today>\""
+;;                 ((org-agenda-overriding-header "\nCompleted today\n")))))))
+)
+(after! org-element
+(setq org-element-use-cache nil)
+)
+;; ;; org-roam settings
+(setq org-roam-directory (file-truename "~/syncthing/org/org-roam"))
+
+(after! org-roam
+(org-roam-db-autosync-mode) ;; Syncs the org-roam database on startup, will fail if emacs-sql doesn't exists yet. To fix, run the command manually
+(setq org-roam-capture-templates
+      '(("d" "Plain Note" plain "%?"
+         :if-new
+         (file+head "${slug}.org" "#+title: ${title}\n")
+         :immediate-finish t
+         :unnarrowed t)
+        ("s" "Command" plain
+         "* %?:\n#+BEGIN_SRC sh\n\n#+END_SRC"
+         :if-new (file+head "docs/${slug}.org"
+                            "#+title: ${title}\n#+filetags: docs")
+         :immediate-finish t
+         :unnarrowed t)
+        ("w" "Work notes" plain "%?"
+         :if-new
+         (file+head "worknotes/${title}.org" "#+title: ${title}\n#+filetags: work")
+         :immediate-finish t
+         :unnarrowed t)
+        )
+      )
+
+(cl-defmethod org-roam-node-type ((node org-roam-node))
+  "Return the TYPE of NODE."
+  (condition-case nil
+      (file-name-nondirectory
+       (directory-file-name
+        (file-name-directory
+         (file-relative-name (org-roam-node-file node) org-roam-directory))))
+    (error "")))
+(setq org-roam-node-display-template
+      (concat "${type:15} ${title:*} "
+              (propertize "${tags:10}" 'face 'org-tag)
+              )
+      )
+)
+(defun organised-exchange ()
+  "Sync Outlook Calendar ics with Org Agenda."
+  (interactive)
+  (if (get-buffer "~/git/organised_exchange/exchange.org")
+      (kill-buffer "~/git/organised_exchange/exchange.org"))
+  (shell-command "~/git/organised-exchange/run.sh")
+  (message "calendar imported!"))
+;; (add-hook! 'org-mode-hook #'mixed-pitch-mode)
+
+;; ;; Save the corresponding buffers
+;; (defun gtd-save-org-buffers ()
+;;   "Save `org-agenda-files' buffers without user confirmation.
+;; See also `org-save-all-org-buffers'"
+;;   (interactive)
+;;   (message "Saving org-agenda-files buffers...")
+;;   (save-some-buffers t (lambda ()
+;; 			 (when (member (buffer-file-name) org-agenda-files)
+;; 			   t)))
+;;   (message "Saving org-agenda-files buffers... done"))
+
+;; ;; Add it after refile
+;; (advice-add 'org-refile :after
+;; 	    (lambda (&rest _)
+;; 	      (gtd-save-org-buffers)))
+;; ;; Auto revert (refresh actually, I don't understand the language here) files when they change
+;; ;; Copied from here https://kundeveloper.com/blog/autorevert/
+;; (global-auto-revert-mode t)
+
+;; ;; Whenever you reconfigure a package, make sure to wrap your config in an
+;; ;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
+;; ;;
+;; ;;   (after! PACKAGE
+;; ;;     (setq x y))
+;; ;;
+;; ;; The exceptions to this rule:
+;; ;;   - Setting file/directory variables (like `org-directory')
+;; ;;   - Setting variables which explicitly tell you to set them before their
+;; ;;     package is loaded (see 'C-h v VARIABLE' to look up their documentation).
+;; ;;   - Setting doom variables (which start with 'doom-' or '+').
+;; ;;
+;; ;; Here are some additional functions/macros that will help you configure Doom.
+;; ;;
+;; ;; - `load!' for loading external *.el files relative to this one
+;; ;; - `use-package!' for configuring packages
+;; ;; - `after!' for running code after a package has loaded
+;; ;; - `add-load-path!' for adding directories to the `load-path', relative to
+;; ;;   this file. Emacs searches the `load-path' when you load packages with
+;; ;;   `require' or `use-package'.
+;; ;; - `map!' for binding new keys
+;; ;;
+;; ;; To get information about any of these functions/macros, move the cursor over
+;; ;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
+;; ;; This will open documentation for it, including demos of how they are used.
+;; ;; Alternatively, use `C-h o' to look up a symbol (functions, variables, faces,
+;; ;; etc).
+;; ;;
+;; ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
+;; ;; they are implemented.
+;; ;; (use-package uuid :commands uuid-string)
+;; ;; (defun uuid-string ()
+;; ;;   "Make a string form of a UUID directly."
+;; ;;   (uuid))
+;; ;; NOTE All meain functions are from here https://github.com/meain/dotfiles/blob/25863934a8bcab3e1075cf2f7564b1290b77d14b/emacs/.config/emacs/init.el#L2186
+;; ;; (customize-set-variable
+;; ;;  'tramp-password-prompt-regexp
+;; ;;  (concat
+;; ;;   "^.*"
+;; ;;   (regexp-opt
+;; ;;    '("passphrase"))))
+;; ;; (add-to-list 'tramp-connection-properties
+;; ;;              (list (regexp-quote "/ssh:fbartik@bastion2.osc.edu:")
+;; ;;                    "remote-shell" "/bin/bash"))
+;; (use-package! plz)
+;; (if (eq system-type 'darwin)
+;;   (load "~/.hammerspoon/Spoons/editWithEmacs.spoon/hammerspoon.el")
+;; )
+;; (customize-set-variable 'tramp-encoding-shell "/bin/zsh")
+;; (customize-set-variable
+;;  'tramp-ssh-controlmaster-options
+;;  (concat
+;;  "-o ControlPath=/Users/fbartik/.ssh/cm-%%r@%%h:%%p "
+;;  "-o ControlMaster=auto -o ControlPersist=yes"))
+(customize-set-variable 'tramp-use-ssh-controlmaster-options nil)
+(setq tramp-verbose 6)
+(setq tramp-terminal-type "tramp")
+;; (setq tramp-shell-prompt-pattern "\\(?:^\\|\r\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*")
