@@ -37,7 +37,13 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'humanoid-light)
+(use-package theme-changer
+  :config
+        (setq calendar-latitude 40)
+        (setq calendar-longitude -83)
+        (change-theme 'humanoid-light 'doom-pine)
+)
+;; (setq doom-theme 'humanoid-light)
 ;; (custom-theme-set-faces!
 ;; 'doom-feather-light
 ;; '(org-level-4 :inherit outline-4 :height 1.1)
@@ -84,10 +90,6 @@
 ;; (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
 
 )
-
-
-
-;; )
 ;; org-refile
 (after! org-refile
 ;; (setq org-refile-targets
@@ -100,34 +102,34 @@
 (setq org-agenda-span 'day)
 (setq org-agenda-start-day nil)
 
-;; (setq org-agenda-custom-commands
-;;       '(("g" "Get Things Done (GTD)"
-;;          ((agenda ""
-;;                   ((org-agenda-skip-function
-;;                     '(org-agenda-skip-entry-if 'deadline))
-;;                    (org-deadline-warning-days 0)))
-;;           (todo "NEXT"
-;;                 ((org-agenda-skip-function
-;;                   '(org-agenda-skip-entry-if 'deadline))
-;;                  (org-agenda-prefix-format "  %i %-12:c [%e] ")
-;;                  (org-agenda-overriding-header "\nTasks\n")))
-;;           (agenda nil
-;;                   ((org-agenda-entry-types '(:deadline))
-;;                    (org-agenda-format-date "")
-;;                    (org-deadline-warning-days 7)
-;;                    (org-agenda-skip-function
-;;                     '(org-agenda-skip-entry-if 'notregexp "\\* NEXT"))
-;;                    (org-agenda-overriding-header "\nDeadlines")))
-;;           (tags-todo "inbox"
-;;                      ((org-agenda-prefix-format "  %?-12t% s")
-;;                       (org-agenda-overriding-header "\nInbox\n")))
-;;           (tags "CLOSED>=\"<today>\""
-;;                 ((org-agenda-overriding-header "\nCompleted today\n")))))))
+;;(setq org-agenda-custom-commands
+;;      '(("g" "Get Things Done (GTD)"
+;;         ((agenda ""
+;;                  ((org-agenda-skip-function
+;;                    '(org-agenda-skip-entry-if 'deadline))
+;;                   (org-deadline-warning-days 0)))
+;;          (todo "NEXT"
+;;                ((org-agenda-skip-function
+;;                  '(org-agenda-skip-entry-if 'deadline))
+;;                 (org-agenda-prefix-format "  %i %-12:c [%e] ")
+;;                 (org-agenda-overriding-header "\nTasks\n")))
+;;          (agenda nil
+;;                  ((org-agenda-entry-types '(:deadline))
+;;                   (org-agenda-format-date "")
+;;                   (org-deadline-warning-days 7)
+;;                   (org-agenda-skip-function
+;;                    '(org-agenda-skip-entry-if 'notregexp "\\* NEXT"))
+;;                   (org-agenda-overriding-header "\nDeadlines")))
+;;          (tags-todo "inbox"
+;;                     ((org-agenda-prefix-format "  %?-12t% s")
+;;                      (org-agenda-overriding-header "\nInbox\n")))
+;;          (tags "CLOSED>=\"<today>\""
+;;                ((org-agenda-overriding-header "\nCompleted today\n")))))))
 )
 (after! org-element
 (setq org-element-use-cache nil)
 )
-;; ;; org-roam settings
+;; org-roam settings
 (setq org-roam-directory (file-truename "~/syncthing/org/org-roam"))
 
 (after! org-roam
@@ -188,51 +190,51 @@
 ;; ;; Copied from here https://kundeveloper.com/blog/autorevert/
 ;; (global-auto-revert-mode t)
 
-;; ;; Whenever you reconfigure a package, make sure to wrap your config in an
-;; ;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
-;; ;;
-;; ;;   (after! PACKAGE
-;; ;;     (setq x y))
-;; ;;
-;; ;; The exceptions to this rule:
-;; ;;   - Setting file/directory variables (like `org-directory')
-;; ;;   - Setting variables which explicitly tell you to set them before their
-;; ;;     package is loaded (see 'C-h v VARIABLE' to look up their documentation).
-;; ;;   - Setting doom variables (which start with 'doom-' or '+').
-;; ;;
-;; ;; Here are some additional functions/macros that will help you configure Doom.
-;; ;;
-;; ;; - `load!' for loading external *.el files relative to this one
-;; ;; - `use-package!' for configuring packages
-;; ;; - `after!' for running code after a package has loaded
-;; ;; - `add-load-path!' for adding directories to the `load-path', relative to
-;; ;;   this file. Emacs searches the `load-path' when you load packages with
-;; ;;   `require' or `use-package'.
-;; ;; - `map!' for binding new keys
-;; ;;
-;; ;; To get information about any of these functions/macros, move the cursor over
-;; ;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
-;; ;; This will open documentation for it, including demos of how they are used.
-;; ;; Alternatively, use `C-h o' to look up a symbol (functions, variables, faces,
-;; ;; etc).
-;; ;;
-;; ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
-;; ;; they are implemented.
-;; ;; (use-package uuid :commands uuid-string)
-;; ;; (defun uuid-string ()
-;; ;;   "Make a string form of a UUID directly."
-;; ;;   (uuid))
-;; ;; NOTE All meain functions are from here https://github.com/meain/dotfiles/blob/25863934a8bcab3e1075cf2f7564b1290b77d14b/emacs/.config/emacs/init.el#L2186
-;; ;; (customize-set-variable
-;; ;;  'tramp-password-prompt-regexp
-;; ;;  (concat
-;; ;;   "^.*"
-;; ;;   (regexp-opt
-;; ;;    '("passphrase"))))
-;; ;; (add-to-list 'tramp-connection-properties
-;; ;;              (list (regexp-quote "/ssh:fbartik@bastion2.osc.edu:")
-;; ;;                    "remote-shell" "/bin/bash"))
-;; (use-package! plz)
+;; Whenever you reconfigure a package, make sure to wrap your config in an
+;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
+;;
+;;   (after! PACKAGE
+;;     (setq x y))
+;;
+;; The exceptions to this rule:
+;;   - Setting file/directory variables (like `org-directory')
+;;   - Setting variables which explicitly tell you to set them before their
+;;     package is loaded (see 'C-h v VARIABLE' to look up their documentation).
+;;   - Setting doom variables (which start with 'doom-' or '+').
+;;
+;; Here are some additional functions/macros that will help you configure Doom.
+;;
+;; - `load!' for loading external *.el files relative to this one
+;; - `use-package!' for configuring packages
+;; - `after!' for running code after a package has loaded
+;; - `add-load-path!' for adding directories to the `load-path', relative to
+;;   this file. Emacs searches the `load-path' when you load packages with
+;;   `require' or `use-package'.
+;; - `map!' for binding new keys
+;;
+;; To get information about any of these functions/macros, move the cursor over
+;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
+;; This will open documentation for it, including demos of how they are used.
+;; Alternatively, use `C-h o' to look up a symbol (functions, variables, faces,
+;; etc).
+;;
+;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
+;; they are implemented.
+;; (use-package uuid :commands uuid-string)
+;; (defun uuid-string ()
+;;   "Make a string form of a UUID directly."
+;;   (uuid))
+;; NOTE All meain functions are from here https://github.com/meain/dotfiles/blob/25863934a8bcab3e1075cf2f7564b1290b77d14b/emacs/.config/emacs/init.el#L2186
+;; (customize-set-variable
+;;  'tramp-password-prompt-regexp
+;;  (concat
+;;   "^.*"
+;;   (regexp-opt
+;;    '("passphrase"))))
+;; (add-to-list 'tramp-connection-properties
+;;              (list (regexp-quote "/ssh:fbartik@bastion2.osc.edu:")
+;;                    "remote-shell" "/bin/bash"))
+(use-package! plz)
 ;; (if (eq system-type 'darwin)
 ;;   (load "~/.hammerspoon/Spoons/editWithEmacs.spoon/hammerspoon.el")
 ;; )
