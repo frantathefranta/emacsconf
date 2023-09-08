@@ -188,8 +188,32 @@
 ;; 	      (gtd-save-org-buffers)))
 ;; ;; Auto revert (refresh actually, I don't understand the language here) files when they change
 ;; ;; Copied from here https://kundeveloper.com/blog/autorevert/
-;; (global-auto-revert-mode t)
+(global-auto-revert-mode t)
 
+(after! chezmoi
+(use-package chezmoi)
+
+(defun chezmoi--evil-insert-state-enter ()
+  "Run after evil-insert-state-entry."
+  (chezmoi-template-buffer-display nil (point))
+  (remove-hook 'after-change-functions #'chezmoi-template--after-change 1))
+
+(defun chezmoi--evil-insert-state-exit ()
+  "Run after evil-insert-state-exit."
+  (chezmoi-template-buffer-display nil)
+  (chezmoi-template-buffer-display t)
+  (add-hook 'after-change-functions #'chezmoi-template--after-change nil 1))
+
+(defun chezmoi-evil ()
+  (if chezmoi-mode
+      (progn
+        (add-hook 'evil-insert-state-entry-hook #'chezmoi--evil-insert-state-enter nil 1)
+        (add-hook 'evil-insert-state-exit-hook #'chezmoi--evil-insert-state-exit nil 1))
+    (progn
+      (remove-hook 'evil-insert-state-entry-hook #'chezmoi--evil-insert-state-enter 1)
+      (remove-hook 'evil-insert-state-exit-hook #'chezmoi--evil-insert-state-exit 1))))
+(add-hook 'chezmoi-mode-hook #'chezmoi-evil)
+)
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
 ;;
