@@ -133,6 +133,7 @@
 (setq org-roam-directory (file-truename "~/syncthing/org/org-roam"))
 
 (after! org-roam
+(org-roam-db-location (expand-file-name (concat "org-roam." hr/hostname ".db") org-roam-directory))
 (org-roam-db-autosync-mode) ;; Syncs the org-roam database on startup, will fail if emacs-sql doesn't exists yet. To fix, run the command manually
 (setq org-roam-capture-templates
       '(("d" "Docs Note" plain "%?"
