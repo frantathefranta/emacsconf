@@ -190,9 +190,7 @@
 ;; ;; Copied from here https://kundeveloper.com/blog/autorevert/
 (global-auto-revert-mode t)
 
-(after! chezmoi
 (use-package chezmoi)
-
 (defun chezmoi--evil-insert-state-enter ()
   "Run after evil-insert-state-entry."
   (chezmoi-template-buffer-display nil (point))
@@ -213,7 +211,7 @@
       (remove-hook 'evil-insert-state-entry-hook #'chezmoi--evil-insert-state-enter 1)
       (remove-hook 'evil-insert-state-exit-hook #'chezmoi--evil-insert-state-exit 1))))
 (add-hook 'chezmoi-mode-hook #'chezmoi-evil)
-)
+
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
 ;;
