@@ -8,11 +8,11 @@
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;(package! some-package)
-(package! uuidgen)
+;;(package! uuidgen)
 (package! humanoid-themes)
 (package! mixed-pitch)
-(package! plz) ;; An HTTP library for Emacs
-(package! hass)
+;;(package! plz) ;; An HTTP library for Emacs
+;;(package! hass)
 (package! hackernews)
 (package! theme-changer)
 (package! chezmoi)
