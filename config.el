@@ -148,6 +148,13 @@
         )
       )
 
+(setq org-roam-dailies-directory "daily/")
+
+(setq org-roam-dailies-capture-templates
+      '(("d" "default" entry
+         "* %?"
+         :target (file+head "%<%Y-%m-%d>.org"
+                            "#+title: %<%Y-%m-%d>\n"))))
 (cl-defmethod org-roam-node-type ((node org-roam-node))
   "Return the TYPE of NODE."
   (condition-case nil
@@ -191,26 +198,27 @@
 (global-auto-revert-mode t)
 
 (use-package chezmoi)
-(defun chezmoi--evil-insert-state-enter ()
-  "Run after evil-insert-state-entry."
-  (chezmoi-template-buffer-display nil (point))
-  (remove-hook 'after-change-functions #'chezmoi-template--after-change 1))
+(use-package! exercism)
+;; (defun chezmoi--evil-insert-state-enter ()
+;;   "Run after evil-insert-state-entry."
+;;   (chezmoi-template-buffer-display nil (point))
+;;   (remove-hook 'after-change-functions #'chezmoi-template--after-change 1))
 
-(defun chezmoi--evil-insert-state-exit ()
-  "Run after evil-insert-state-exit."
-  (chezmoi-template-buffer-display nil)
-  (chezmoi-template-buffer-display t)
-  (add-hook 'after-change-functions #'chezmoi-template--after-change nil 1))
+;; (defun chezmoi--evil-insert-state-exit ()
+;;   "Run after evil-insert-state-exit."
+;;   (chezmoi-template-buffer-display nil)
+;;   (chezmoi-template-buffer-display t)
+;;   (add-hook 'after-change-functions #'chezmoi-template--after-change nil 1))
 
-(defun chezmoi-evil ()
-  (if chezmoi-mode
-      (progn
-        (add-hook 'evil-insert-state-entry-hook #'chezmoi--evil-insert-state-enter nil 1)
-        (add-hook 'evil-insert-state-exit-hook #'chezmoi--evil-insert-state-exit nil 1))
-    (progn
-      (remove-hook 'evil-insert-state-entry-hook #'chezmoi--evil-insert-state-enter 1)
-      (remove-hook 'evil-insert-state-exit-hook #'chezmoi--evil-insert-state-exit 1))))
-(add-hook 'chezmoi-mode-hook #'chezmoi-evil)
+;; (defun chezmoi-evil ()
+;;   (if chezmoi-mode
+;;       (progn
+;;         (add-hook 'evil-insert-state-entry-hook #'chezmoi--evil-insert-state-enter nil 1)
+;;         (add-hook 'evil-insert-state-exit-hook #'chezmoi--evil-insert-state-exit nil 1))
+;;     (progn
+;;       (remove-hook 'evil-insert-state-entry-hook #'chezmoi--evil-insert-state-enter 1)
+;;       (remove-hook 'evil-insert-state-exit-hook #'chezmoi--evil-insert-state-exit 1))))
+;; (add-hook 'chezmoi-mode-hook #'chezmoi-evil)
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
@@ -256,7 +264,7 @@
 ;; (add-to-list 'tramp-connection-properties
 ;;              (list (regexp-quote "/ssh:fbartik@bastion2.osc.edu:")
 ;;                    "remote-shell" "/bin/bash"))
-(use-package! plz)
+;r(use-package! plz)
 ;; (if (eq system-type 'darwin)
 ;;   (load "~/.hammerspoon/Spoons/editWithEmacs.spoon/hammerspoon.el")
 ;; )

@@ -17,7 +17,8 @@
 (package! theme-changer)
 (package! chezmoi)
 (package! org :pin "ca873f7")
-;; To install a package directly from a remote git repo, you must specify a
+(package! exercism)
+;; to install a package directly from a remote git repo, you must specify a
 ;; `:recipe'. You'll find documentation on what `:recipe' accepts here:
 ;; https://github.com/radian-software/straight.el#the-recipe-format
 ;(package! another-package
