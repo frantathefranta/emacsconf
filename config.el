@@ -88,7 +88,7 @@
 ;;     (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
 
 ;; (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
-
+(with-eval-after-load 'org (global-org-modern-mode))
 )
 ;; org-refile
 (after! org-refile
