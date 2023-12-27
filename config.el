@@ -197,6 +197,56 @@
 ;; ;; Copied from here https://kundeveloper.com/blog/autorevert/
 (global-auto-revert-mode t)
 
+;; Using this library https://github.com/zzkt/metabrainz
+(defun franta/org-insert-heading-from-musicbrainz-url (url)
+  "Insert an Org heading with a link from a MusicBrainz URL at point."
+  (interactive "sEnter MusicBrainz URL: ")
+  (let* ((mbid (franta/extract-mbid-from-musicbrainz-url url))
+         (result (when mbid
+                   (musicbrainz-lookup "release-group" mbid "artists")))
+         (names (franta/extract-artist-and-album-names result))
+         (artist (car names))
+         (album (cadr names))
+         (heading-text (format "%s - %s" artist album))
+         (org-heading (format "** [[%s][%s]]" url heading-text)))
+    (insert org-heading)))
+
+(defun franta/extract-mbid-from-musicbrainz-url (url)
+  "Extract the MBID from a MusicBrainz URL."
+  (if (string-match "/release-group/\\([a-f0-9-]+\\)" url)
+      (match-string 1 url)
+    (message "Invalid MusicBrainz URL")))
+
+(defun franta/extract-artist-and-album-names-from-url (url)
+  "Extract and print the artist and album names from a MusicBrainz URL."
+  (interactive "sEnter MusicBrainz URL: ")
+  (let* ((mbid (franta/extract-mbid-from-musicbrainz-url url))
+         (result (when mbid
+                   (musicbrainz-lookup "release-group" mbid "artists")))
+         (names (franta/extract-artist-and-album-names result)))
+    (when names
+      (message "Artist: %s\nAlbum: %s" (car names) (cadr names)))))
+
+(defun franta/extract-artist-and-album-names (result)
+  "Extract the artist and album names from the musicbrainz-lookup result."
+  (when result
+    (let* ((artist-credit (cdr (assoc 'artist-credit result)))
+           (artist-name (franta/extract-artist-name artist-credit))
+           (album-name (cdr (assoc 'title result))))
+      (list artist-name album-name))))
+
+(defun franta/extract-artist-name (artist-credit)
+  "Extract the artist name from the artist-credit part of the result."
+  (when artist-credit
+    (cl-some (lambda (credit)
+               (when-let ((artist-info (cdr (assoc 'artist credit)))
+                          (name (cdr (assoc 'name artist-info))))
+                 name))
+             artist-credit)))
+
+;; Example usage:
+;; (franta/extract-artist-and-album-names-from-url "https://musicbrainz.org/release-group/242741bf-182e-45d9-9276-5af8d1b31ad9")
+
 (use-package chezmoi)
 (use-package! exercism)
 ;; (defun chezmoi--evil-insert-state-enter ()

@@ -19,6 +19,8 @@
 (package! org :pin "b55e38863136b40bfdbfaede05b45a773a001fc4")
 (package! exercism)
 (package! org-modern)
+(package! musicbrainz)
+(package! url)
 ;; to install a package directly from a remote git repo, you must specify a
 ;; `:recipe'. You'll find documentation on what `:recipe' accepts here:
 ;; https://github.com/radian-software/straight.el#the-recipe-format
