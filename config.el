@@ -145,6 +145,11 @@
          (file+head "worknotes/${title}.org" "#+title: ${title}\n#+filetags: work")
          :immediate-finish t
          :unnarrowed t)
+        ("n" "Personal Notes" plain "%?"
+         :if-new
+         (file+head "notes/${title}.org" "#+title: ${title}\n#+filetags: work")
+         :immediate-finish t
+         :unnarrowed t)
         )
       )
 
@@ -169,6 +174,21 @@
               )
       )
 )
+(use-package! websocket
+    :after org-roam)
+
+(use-package! org-roam-ui
+    :after org-roam ;; or :after org
+;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+;;         a hookable mode anymore, you're advised to pick something yourself
+;;         if you don't care about startup time, use
+;;  :hook (after-init . org-roam-ui-mode)
+    :config
+    (setq org-roam-ui-sync-theme t
+          org-roam-ui-follow t
+          org-roam-ui-update-on-save t
+          org-roam-ui-open-on-start t))
+
 (defun organised-exchange ()
   "Sync Outlook Calendar ics with Org Agenda."
   (interactive)
@@ -234,15 +254,6 @@
            (artist-name (franta/extract-artist-name artist-credit))
            (album-name (cdr (assoc 'title result))))
       (list artist-name album-name))))
-
-(defun franta/extract-artist-name (artist-credit)
-  "Extract the artist name from the artist-credit part of the result."
-  (when artist-credit
-    (cl-some (lambda (credit)
-               (when-let ((artist-info (cdr (assoc 'artist credit)))
-                          (name (cdr (assoc 'name artist-info))))
-                 name))
-             artist-credit)))
 
 ;; Example usage:
 ;; (franta/extract-artist-and-album-names-from-url "https://musicbrainz.org/release-group/242741bf-182e-45d9-9276-5af8d1b31ad9")
