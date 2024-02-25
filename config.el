@@ -24,6 +24,27 @@
 (setq doom-font                (font-spec :name "IosevkaCustom Nerd Font Mono" :width 'expanded :size 17))
 (when (doom-font-exists-p "EtBembo")
     (setq doom-variable-pitch-font (font-spec :name "EtBembo")))
+ (let* ((variable-tuple
+          (cond ((x-list-fonts "ETBembo")         '(:font "EtBembo"))
+                ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+                ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
+                ((x-list-fonts "Verdana")         '(:font "Verdana"))
+                ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+                (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
+         (base-font-color     (face-foreground 'default nil 'default))
+         (headline           `(:inherit default :weight bold :foreground ,base-font-color)))
+
+    (custom-theme-set-faces
+     'user
+     `(org-level-8 ((t (,@headline ,@variable-tuple))))
+     `(org-level-7 ((t (,@headline ,@variable-tuple))))
+     `(org-level-6 ((t (,@headline ,@variable-tuple))))
+     `(org-level-5 ((t (,@headline ,@variable-tuple))))
+     `(org-level-4 ((t (,@headline ,@variable-tuple :height 1.1))))
+     `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.15))))
+     `(org-level-2 ((t (,@headline ,@variable-tuple :height 1.2))))
+     `(org-level-1 ((t (,@headline ,@variable-tuple :height 1.3))))
+     `(org-document-title ((t (,@headline ,@variable-tuple :height 1.5 :underline nil))))))
 ;; Hasklug doesn't work for Emacs for some reason, it makes the highlighted lines jump back on forth
 ;; (setq doom-font (font-spec :family "Hasklug Nerd Font" :size 16))
      ;; doom-variable-pitch-font (font-spec :family "Hasklug Nerd Font" :size 16))
@@ -78,6 +99,7 @@
         ,(concat "* %?\n"
                  "/Entered on/ %U"))))
 (setq org-log-done 'time)
+(setq org-hide-emphasis-markers t)
 (setq org-todo-keywords
       '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|" "DONE(d)")))
 
@@ -196,7 +218,7 @@
       (kill-buffer "~/git/organised_exchange/exchange.org"))
   (shell-command "~/git/organised-exchange/run.sh")
   (message "calendar imported!"))
-;; (add-hook! 'org-mode-hook #'mixed-pitch-mode)
+(add-hook! 'org-mode-hook 'writeroom-mode)
 
 ;; ;; Save the corresponding buffers
 ;; (defun gtd-save-org-buffers ()
@@ -254,6 +276,14 @@
            (artist-name (franta/extract-artist-name artist-credit))
            (album-name (cdr (assoc 'title result))))
       (list artist-name album-name))))
+(defun franta/extract-artist-name (artist-credit)
+  "Extract the artist name from the artist-credit part of the result."
+  (when artist-credit
+    (cl-some (lambda (credit)
+               (when-let ((artist-info (cdr (assoc 'artist credit)))
+                          (name (cdr (assoc 'name artist-info))))
+                 name))
+             artist-credit)))
 
 ;; Example usage:
 ;; (franta/extract-artist-and-album-names-from-url "https://musicbrainz.org/release-group/242741bf-182e-45d9-9276-5af8d1b31ad9")
