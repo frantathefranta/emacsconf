@@ -25,10 +25,10 @@
 (when (doom-font-exists-p "EtBembo")
     (setq doom-variable-pitch-font (font-spec :name "EtBembo")))
  (let* ((variable-tuple
-          (cond ((x-list-fonts "ETBembo")         '(:font "EtBembo"))
-                ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
-                ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
-                ((x-list-fonts "Verdana")         '(:font "Verdana"))
+          (cond ((doom-font-exists-p "ETBembo")         '(:font "EtBembo"))
+                ((doom-font-exists-p "Source Sans Pro") '(:font "Source Sans Pro"))
+                ((doom-font-exists-p "Lucida Grande")   '(:font "Lucida Grande"))
+                ((doom-font-exists-p "Verdana")         '(:font "Verdana"))
                 ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
                 (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
          (base-font-color     (face-foreground 'default nil 'default))
@@ -219,6 +219,10 @@
   (shell-command "~/git/organised-exchange/run.sh")
   (message "calendar imported!"))
 (add-hook! 'org-mode-hook 'writeroom-mode)
+(add-hook! 'yaml-mode-hook
+           (lambda ()
+             (set-frame-parameter (window-frame) 'background-mode 'dark)
+             (enable-theme 'doom-gruvbox)))
 
 ;; ;; Save the corresponding buffers
 ;; (defun gtd-save-org-buffers ()
@@ -290,6 +294,9 @@
 
 (use-package chezmoi)
 (use-package! exercism)
+(use-package magit-todos
+  :after magit
+  :config (magit-todos-mode 1))
 ;; (defun chezmoi--evil-insert-state-enter ()
 ;;   "Run after evil-insert-state-entry."
 ;;   (chezmoi-template-buffer-display nil (point))

@@ -26,6 +26,7 @@
 (package! websocket) ;; necessary for org-roam-ui
 (package! simple-httpd) ;; necessary for org-roam-ui
 (package! f) ;; necessary for org-roam-ui
+(package! magit-todos)
 ;; to install a package directly from a remote git repo, you must specify a
 ;; `:recipe'. You'll find documentation on what `:recipe' accepts here:
 ;; https://github.com/radian-software/straight.el#the-recipe-format
