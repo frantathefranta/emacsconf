@@ -75,7 +75,7 @@
 (toggle-debug-on-error)
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
-(setq display-line-numbers-grow-only   t
+(setq-default display-line-numbers-grow-only   t
       display-line-numbers-type        'relative
       display-line-numbers-width-start t)
 (setq flycheck-disabled-checkers '(proselint))
@@ -218,7 +218,11 @@
       (kill-buffer "~/git/organised_exchange/exchange.org"))
   (shell-command "~/git/organised-exchange/run.sh")
   (message "calendar imported!"))
-(add-hook! 'org-mode-hook 'writeroom-mode)
+
+(defun no-line-numbers-hook ()
+  (display-line-numbers-mode -1))
+
+(add-hook! 'org-mode-hook 'writeroom-mode 'no-line-numbers-hook)
 (add-hook! 'yaml-mode-hook
            (lambda ()
              (set-frame-parameter (window-frame) 'background-mode 'dark)
