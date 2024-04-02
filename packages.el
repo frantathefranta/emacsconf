@@ -16,7 +16,7 @@
 (package! hackernews)
 (package! theme-changer)
 (package! chezmoi)
-(package! org :pin "b55e38863136b40bfdbfaede05b45a773a001fc4")
+(package! org :pin "5ff4d54c6fa527f478035467ffe0a82a81a92320")
 (package! exercism)
 (package! org-modern)
 (package! musicbrainz)
@@ -28,6 +28,7 @@
 (package! f) ;; necessary for org-roam-ui
 (package! magit-todos)
 (package! ox-mediawiki)
+(package! toml)
 ;; to install a package directly from a remote git repo, you must specify a
 ;; `:recipe'. You'll find documentation on what `:recipe' accepts here:
 ;; https://github.com/radian-software/straight.el#the-recipe-format
