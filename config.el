@@ -73,7 +73,7 @@
 ;; '(org-level-2 :inherit outline-2 :height 1.3)
 ;; '(org-level-1 :inherit outline-1 :height 1.4)
 ;; '(org-document-title :height 1.5 :underline nil))
-(toggle-debug-on-error)
+;;(toggle-debug-on-error)
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq-default display-line-numbers-grow-only   t
@@ -91,6 +91,7 @@
                              "~/git/organised_exchange/exchange.org"))
 ;; general org settings
 (after! org
+(add-to-list 'org-tags-exclude-from-inheritance "project")
 (setq org-capture-templates
        `(
          ("i" "Inbox" entry  (file "~/syncthing/org/inbox.org")
@@ -113,6 +114,7 @@
 ;; (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
 (with-eval-after-load 'org (global-org-modern-mode))
 )
+(custom-set-variables '(org-modern-table nil))
 ;; org-refile
 (after! org-refile
 ;; (setq org-refile-targets
@@ -160,7 +162,12 @@
 (setq org-roam-capture-templates
       '(("d" "Docs Note" plain "%?"
          :if-new
-         (file+head "docs/${slug}.org" "#+title: ${title}\n")
+         (file+head "docs/${slug}.org" "#+title: ${title}\n#+filetags: docs")
+         :immediate-finish t
+         :unnarrowed t)
+        ("p" "Project Notes" plain "%?"
+         :if-new
+         (file+head "projects/${title}.org" "#+title: ${title}\n#+filetags: project")
          :immediate-finish t
          :unnarrowed t)
         ("w" "Work notes" plain "%?"
@@ -170,7 +177,7 @@
          :unnarrowed t)
         ("n" "Personal Notes" plain "%?"
          :if-new
-         (file+head "notes/${title}.org" "#+title: ${title}\n#+filetags: work")
+         (file+head "notes/${title}.org" "#+title: ${title}\n")
          :immediate-finish t
          :unnarrowed t)
         )
