@@ -21,7 +21,7 @@
 ;; accept. For example:
 ;;
 ;; (when (doom-font-exists-p "Iosevka Custom")
-(setq doom-font                (font-spec :name "IosevkaCustom Nerd Font Mono" :width 'expanded :size 17))
+(setq doom-font                (font-spec :name "IosevkaCustom Nerd Font Mono" :width 'expanded :size 17 :slant 'normal))
 (when (doom-font-exists-p "EtBembo")
     (setq doom-variable-pitch-font (font-spec :name "EtBembo")))
  (let* ((variable-tuple
