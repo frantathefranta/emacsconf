@@ -303,6 +303,28 @@
 
 ;; Example usage:
 ;; (franta/extract-artist-and-album-names-from-url "https://musicbrainz.org/release-group/242741bf-182e-45d9-9276-5af8d1b31ad9")
+(defun my-change-number-at-point (change increment)
+  (let ((number (number-at-point))
+        (point (point)))
+    (when number
+      (progn
+        (forward-word)
+        (search-backward (number-to-string number))
+        (replace-match (number-to-string (funcall change number increment)))
+        (goto-char point)))))
+
+(defun my-increment-number-at-point (&optional increment)
+  "Increment number at point like vim's C-a"
+  (interactive "p")
+  (my-change-number-at-point '+ (or increment 1)))
+
+(defun my-decrement-number-at-point (&optional increment)
+  "Decrement number at point like vim's C-x"
+  (interactive "p")
+  (my-change-number-at-point '- (or increment 1)))
+
+(global-set-key (kbd "C-c a") 'my-increment-number-at-point)
+(global-set-key (kbd "C-c x") 'my-decrement-number-at-point)
 
 (use-package chezmoi)
 (use-package! exercism)
