@@ -63,7 +63,7 @@
   :config
         (setq calendar-latitude 40)
         (setq calendar-longitude -83)
-        (change-theme 'humanoid-light 'doom-pine)
+        (change-theme 'modus-operandi-tinted 'doom-pine)
 )
 ;; (setq doom-theme 'humanoid-light)
 ;; (custom-theme-set-faces!
