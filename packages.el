@@ -16,7 +16,7 @@
 (package! hackernews)
 (package! theme-changer)
 (package! chezmoi)
-(package! org :pin "233a0ced97366090c31ef94562879bb2f729b120")
+;; (package! org :pin "233a0ced97366090c31ef94562879bb2f729b120")
 (package! exercism)
 (package! org-modern)
 (package! musicbrainz)
