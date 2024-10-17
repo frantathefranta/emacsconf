@@ -410,3 +410,5 @@
 (setq tramp-verbose 6)
 (setq tramp-terminal-type "tramp")
 ;; (setq tramp-shell-prompt-pattern "\\(?:^\\|\r\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*")
+(add-to-list 'warning-suppress-log-types '(lsp-mode)) ;; Necessary because semgrep sends a message everytime it starts
+(add-to-list 'warning-suppress-types '(lsp-mode))
