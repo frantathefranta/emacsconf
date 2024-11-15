@@ -80,9 +80,14 @@
       display-line-numbers-type        'relative
       display-line-numbers-width-start t)
 (setq flycheck-disabled-checkers '(proselint))
+
+;; Set Emacs to open full screen
+
+(setq initial-frame-alist '((top . 1) (left . 1) (width . 114) (height . 32)))
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
 ;; (setq org-agenda-hide-tags-regexp ".")
+
 (setq org-directory "~/syncthing/org/")
 (setq org-agenda-files (list "~/syncthing/org/inbox.org"
                              "~/syncthing/org/agenda.org"
@@ -113,8 +118,16 @@
 
 ;; (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
 (with-eval-after-load 'org (global-org-modern-mode))
-)
 (custom-set-variables '(org-modern-table nil))
+)
+
+; Automatic table of contents
+(if (require 'toc-org nil t)
+    (progn
+      (add-hook 'org-mode-hook 'toc-org-mode)
+      (add-hook 'markdown-mode-hook 'toc-org-mode))
+  (warn "toc-org not found"))
+
 ;; org-refile
 (after! org-refile
 ;; (setq org-refile-targets
@@ -229,31 +242,22 @@
 
 (defun no-line-numbers-hook ()
   (display-line-numbers-mode -1))
+;; Something breaks in org-mode when hl-line-mode is turned on and can't figure out why
+;; Disabling it for now using this method, not sure if it's the best but it works
+(defun no-hl-line-hook ()
+  (hl-line-mode -1))
 
-(add-hook! 'org-mode-hook 'writeroom-mode 'no-line-numbers-hook)
+(add-hook! 'org-mode-hook 'writeroom-mode 'no-line-numbers-hook 'no-hl-line-hook)
 (add-hook! 'yaml-mode-hook
            (lambda ()
              (set-frame-parameter (window-frame) 'background-mode 'dark)
              (enable-theme 'doom-gruvbox)))
 
-;; ;; Save the corresponding buffers
-;; (defun gtd-save-org-buffers ()
-;;   "Save `org-agenda-files' buffers without user confirmation.
-;; See also `org-save-all-org-buffers'"
-;;   (interactive)
-;;   (message "Saving org-agenda-files buffers...")
-;;   (save-some-buffers t (lambda ()
-;; 			 (when (member (buffer-file-name) org-agenda-files)
-;; 			   t)))
-;;   (message "Saving org-agenda-files buffers... done"))
-
-;; ;; Add it after refile
-;; (advice-add 'org-refile :after
-;; 	    (lambda (&rest _)
-;; 	      (gtd-save-org-buffers)))
-;; ;; Auto revert (refresh actually, I don't understand the language here) files when they change
-;; ;; Copied from here https://kundeveloper.com/blog/autorevert/
-(global-auto-revert-mode t)
+;; Auto revert (refresh actually, I don't understand the language here) files when they change
+;; Enable autorevert globally so that buffers update when files change on disk.
+;; Very useful when used with file syncing (i.e. syncthing)
+(setq global-auto-revert-mode nil)
+(setq auto-revert-use-notify t)
 
 ;; Using this library https://github.com/zzkt/metabrainz
 (defun franta/org-insert-heading-from-musicbrainz-url (url)
