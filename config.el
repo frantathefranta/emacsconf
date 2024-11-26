@@ -172,6 +172,7 @@
 (after! org-roam
 (setq org-roam-db-location (file-truename "~/.org/org-roam.db"))
 (org-roam-db-autosync-mode) ;; Syncs the org-roam database on startup, will fail if emacs-sql doesn't exists yet. To fix, run the command manually
+
 (setq org-roam-capture-templates
       '(("d" "Docs Note" plain "%?"
          :if-new
@@ -195,7 +196,6 @@
          :unnarrowed t)
         )
       )
-
 (setq org-roam-dailies-directory "daily/")
 
 (setq org-roam-dailies-capture-templates
@@ -231,6 +231,34 @@
           org-roam-ui-follow t
           org-roam-ui-update-on-save t
           org-roam-ui-open-on-start t))
+
+;; consult-org-roam is a great utility that help search org-roam files
+;; Settings are defaults with the exception of the keybinds
+(use-package! consult-org-roam
+   :after org-roam
+   :init
+   (require 'consult-org-roam)
+   ;; Activate the minor mode
+   (consult-org-roam-mode 1)
+   :custom
+   ;; Use `ripgrep' for searching with `consult-org-roam-search'
+   (consult-org-roam-grep-func #'consult-ripgrep)
+   ;; Configure a custom narrow key for `consult-buffer'
+   (consult-org-roam-buffer-narrow-key ?r)
+   ;; Display org-roam buffers right after non-org-roam buffers
+   ;; in consult-buffer (and not down at the bottom)
+   (consult-org-roam-buffer-after-buffers t)
+   :config
+   ;; Eventually suppress previewing for certain functions
+   (consult-customize
+    consult-org-roam-forward-links
+    :preview-key "M-.")
+   (map! :leader
+         :desc "Search in org-roam dir" :n "n r S" #'consult-org-roam-search
+         :desc "Find a file in org-roam dir" :n "n r e" #'consult-org-roam-file-find
+         :desc "Consult backlinks" :n "n r b" #'consult-org-roam-backlinks
+         :desc "Consult backlinks (recursively)" :n "n r B" #'consult-org-roam-backlinks-recursive
+         :desc "Consult forward links" :n "n r l" #'consult-org-roam-forward-links))
 
 (defun organised-exchange ()
   "Sync Outlook Calendar ics with Org Agenda."

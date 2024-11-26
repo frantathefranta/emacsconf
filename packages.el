@@ -24,6 +24,7 @@
 (package! url)
 (unpin! org-roam)
 (package! org-roam-ui)
+(package! consult-org-roam)
 (package! websocket) ;; necessary for org-roam-ui
 (package! simple-httpd) ;; necessary for org-roam-ui
 (package! f) ;; necessary for org-roam-ui
