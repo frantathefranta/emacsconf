@@ -276,10 +276,7 @@
   (hl-line-mode -1))
 
 (add-hook! 'org-mode-hook 'writeroom-mode 'no-line-numbers-hook 'no-hl-line-hook)
-(add-hook! 'yaml-mode-hook
-           (lambda ()
-             (set-frame-parameter (window-frame) 'background-mode 'dark)
-             (enable-theme 'doom-gruvbox)))
+(add-hook! 'yaml-mode-hook 'flymake-yamllint-setup)
 
 ;; Auto revert (refresh actually, I don't understand the language here) files when they change
 ;; Enable autorevert globally so that buffers update when files change on disk.
