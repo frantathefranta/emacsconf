@@ -20,19 +20,19 @@
 ;; See 'C-h v doom-font' for documentation and more examples of what they
 ;; accept. For example:
 ;;
-;; (when (doom-font-exists-p "Iosevka Custom")
-(setq doom-font                (font-spec :name "IosevkaCustom Nerd Font Mono" :width 'expanded :size 17 :slant 'normal))
-(when (doom-font-exists-p "EtBembo")
-    (setq doom-variable-pitch-font (font-spec :name "EtBembo")))
+(when (doom-font-exists-p "Aporetic Serif Mono")
+(setq doom-font                (font-spec :name "Aporetic Serif Mono" :width 'expanded :size 17 :slant 'normal)))
+;; (when (doom-font-exists-p "ETBembo")
+;;     (setq doom-variable-pitch-font (font-spec :name "ETBembo" :slant 'normal :weight 'regular :width 'normal)))
  (let* ((variable-tuple
-          (cond ((doom-font-exists-p "ETBembo")         '(:font "EtBembo"))
+          (cond ((doom-font-exists-p "ETBembo")         '(:font "ETBembo"))
                 ((doom-font-exists-p "Source Sans Pro") '(:font "Source Sans Pro"))
                 ((doom-font-exists-p "Lucida Grande")   '(:font "Lucida Grande"))
                 ((doom-font-exists-p "Verdana")         '(:font "Verdana"))
                 ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
                 (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
          ;; (base-font-color     (face-foreground 'default nil 'default))
-          (headline           `(:inherit default :weight bold))
+          (headline           `(:inherit default))
          )
 
     (custom-theme-set-faces
@@ -45,7 +45,7 @@
      `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.15))))
      `(org-level-2 ((t (,@headline ,@variable-tuple :height 1.2))))
      `(org-level-1 ((t (,@headline ,@variable-tuple :height 1.3))))
-     `(org-document-title ((t (,@headline ,@variable-tuple :height 1.5 :underline nil))))))
+     `(org-document-title ((t (,@headline ,@variable-tuple :height 1.5 :underline nil :slant normal))))))
 ;; Hasklug doesn't work for Emacs for some reason, it makes the highlighted lines jump back on forth
 ;; (setq doom-font (font-spec :family "Hasklug Nerd Font" :size 16))
      ;; doom-variable-pitch-font (font-spec :family "Hasklug Nerd Font" :size 16))
@@ -80,6 +80,7 @@
       display-line-numbers-type        'relative
       display-line-numbers-width-start t)
 (setq flycheck-disabled-checkers '(proselint))
+(setq ispell-personal-dictionary "~/.config/doom/ispell.dictionary")
 
 ;; Set Emacs to open full screen
 
