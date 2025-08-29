@@ -16,7 +16,7 @@
 (package! hackernews)
 (package! theme-changer)
 (package! chezmoi)
-(package! org :pin "a1df10f679a72fe75c3d95d1e41b5fdb689fe22e")
+;; (package! org :pin "a1df10f679a72fe75c3d95d1e41b5fdb689fe22e")
 (package! exercism)
 (package! org-modern)
 (package! toc-org)
