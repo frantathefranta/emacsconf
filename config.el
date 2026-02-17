@@ -20,38 +20,40 @@
 ;; See 'C-h v doom-font' for documentation and more examples of what they
 ;; accept. For example:
 ;;
-(when (doom-font-exists-p "Aporetic Serif Mono")
-(setq doom-font                (font-spec :name "Aporetic Serif Mono" :width 'expanded :size 17 :slant 'normal)))
+(when (doom-font-exists-p "Aporetic Sans Mono")
+  (setq doom-font                (font-spec :name "Aporetic Sans Mono" :width 'expanded :size 17 :slant 'normal)))
 (when (doom-font-exists-p "ETBembo")
-    (setq doom-variable-pitch-font (font-spec :name "ETBembo")))
- ;; (let* ((variable-tuple
- ;;          (cond ((doom-font-exists-p "ETBembo")         '(:font "ETBembo"))
- ;;                ((doom-font-exists-p "Source Sans Pro") '(:font "Source Sans Pro"))
- ;;                ((doom-font-exists-p "Lucida Grande")   '(:font "Lucida Grande"))
- ;;                ((doom-font-exists-p "Verdana")         '(:font "Verdana"))
- ;;                ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
- ;;                (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
- ;;         ;; (base-font-color     (face-foreground 'default nil 'default))
- ;;         )
+  (setq doom-variable-pitch-font (font-spec :name "ETBembo")))
 
- ;;    (custom-theme-set-faces
- ;;     'user
- ;;     `(org-meta-line ((t (,:slant italic))))
- ;;     `(org-level-8 ((t (,@variable-tuple))))
- ;;     `(org-level-7 ((t (,@variable-tuple))))
- ;;     `(org-level-6 ((t (,@variable-tuple))))
- ;;     `(org-level-5 ((t (,@variable-tuple))))
- ;;     `(org-level-4 ((t (,@variable-tuple :height 1.0))))
- ;;     `(org-level-3 ((t (,@variable-tuple :height 1.1))))
- ;;     `(org-level-2 ((t (,@variable-tuple :height 1.2))))
- ;;     `(org-level-1 ((t (,@variable-tuple :height 1.3 :weight semi-bold :slant normal :width regular))))
- ;;     `(org-document-title ((t (,@variable-tuple :height 1.5 :underline t :slant normal :weight semi-bold :width normal))))))
+(setq shell-file-name (executable-find "bash"))
+;; (let* ((variable-tuple
+;;          (cond ((doom-font-exists-p "ETBembo")         '(:font "ETBembo"))
+;;                ((doom-font-exists-p "Source Sans Pro") '(:font "Source Sans Pro"))
+;;                ((doom-font-exists-p "Lucida Grande")   '(:font "Lucida Grande"))
+;;                ((doom-font-exists-p "Verdana")         '(:font "Verdana"))
+;;                ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+;;                (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
+;;         ;; (base-font-color     (face-foreground 'default nil 'default))
+;;         )
+
+;;    (custom-theme-set-faces
+;;     'user
+;;     `(org-meta-line ((t (,:slant italic))))
+;;     `(org-level-8 ((t (,@variable-tuple))))
+;;     `(org-level-7 ((t (,@variable-tuple))))
+;;     `(org-level-6 ((t (,@variable-tuple))))
+;;     `(org-level-5 ((t (,@variable-tuple))))
+;;     `(org-level-4 ((t (,@variable-tuple :height 1.0))))
+;;     `(org-level-3 ((t (,@variable-tuple :height 1.1))))
+;;     `(org-level-2 ((t (,@variable-tuple :height 1.2))))
+;;     `(org-level-1 ((t (,@variable-tuple :height 1.3 :weight semi-bold :slant normal :width regular))))
+;;     `(org-document-title ((t (,@variable-tuple :height 1.5 :underline t :slant normal :weight semi-bold :width normal))))))
 
 
 
 ;; Hasklug doesn't work for Emacs for some reason, it makes the highlighted lines jump back on forth
 ;; (setq doom-font (font-spec :family "Hasklug Nerd Font" :size 16))
-     ;; doom-variable-pitch-font (font-spec :family "Hasklug Nerd Font" :size 16))
+;; doom-variable-pitch-font (font-spec :family "Hasklug Nerd Font" :size 16))
 
 ;;
 ;; If you or Emacs can't find your font, use 'M-x describe-font' to look them
@@ -63,7 +65,7 @@
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
 
-(setq doom-theme 'modus-operandi-tinted)
+(setq doom-theme 'ef-melissa-dark)
 ;; (use-package! theme-changer
 ;;   :config
 ;;         (setq calendar-latitude 40)
@@ -81,8 +83,8 @@
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq-default display-line-numbers-grow-only   t
-      display-line-numbers-type        'relative
-      display-line-numbers-width-start t)
+              display-line-numbers-type        'relative
+              display-line-numbers-width-start t)
 (setq flycheck-disabled-checkers '(proselint))
 (setq ispell-personal-dictionary "~/.config/doom/ispell.dictionary")
 
@@ -101,36 +103,36 @@
                              "~/git/organised_exchange/exchange.org"))
 ;; general org settings
 (after! org
-(custom-set-faces!
-  '(org-level-2 :inherit outline-2 :height 1.3 :weight regular)
-  '(org-level-1 :inherit outline-1 :height 1.4 :weight semi-bold)
-  '(org-document-title :height 1.5 :underline t :slant normal :weight: semi-bold))
-(add-to-list 'org-tags-exclude-from-inheritance "project")
-(setq org-capture-templates
-       `(
-         ("i" "Inbox" entry  (file "~/syncthing/org/inbox.org")
-        ,(concat "* TODO %?\n"
-                 "/Entered on/ %U"))
-         ("s" "Slipbox" entry  (file "~/syncthing/org/org-roam/inbox.org")
-        ,(concat "* %?\n"
-                 "/Entered on/ %U"))))
-(setq org-log-done 'time)
-(setq org-hide-emphasis-markers t)
-(setq org-todo-keywords
-      '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|" "DONE(d)")))
+  (custom-set-faces!
+    '(org-level-2 :inherit outline-2 :height 1.3 :weight regular)
+    '(org-level-1 :inherit outline-1 :height 1.4 :weight semi-bold)
+    '(org-document-title :height 1.5 :underline t :slant normal :weight: semi-bold))
+  (add-to-list 'org-tags-exclude-from-inheritance "project")
+  (setq org-capture-templates
+        `(
+          ("i" "Inbox" entry  (file "~/syncthing/org/inbox.org")
+           ,(concat "* TODO %?\n"
+                    "/Entered on/ %U"))
+          ("s" "Slipbox" entry  (file "~/syncthing/org/org-roam/inbox.org")
+           ,(concat "* %?\n"
+                    "/Entered on/ %U"))))
+  (setq org-log-done 'time)
+  (setq org-hide-emphasis-markers t)
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|" "DONE(d)")))
 
-;; (defun log-todo-next-creation-date (&rest ignore)
-;;   "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
-;;   (when (and (string= (org-get-todo-state) "NEXT")
-;;              (not (org-entry-get nil "ACTIVATED")))
-;;     (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
+  ;; (defun log-todo-next-creation-date (&rest ignore)
+  ;;   "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
+  ;;   (when (and (string= (org-get-todo-state) "NEXT")
+  ;;              (not (org-entry-get nil "ACTIVATED")))
+  ;;     (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
 
-;; (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
-(with-eval-after-load 'org (global-org-modern-mode))
-(custom-set-variables '(org-modern-table nil))
-)
+  ;; (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
+  (with-eval-after-load 'org (global-org-modern-mode))
+  (custom-set-variables '(org-modern-table nil))
+  )
 
-; Automatic table of contents
+                                        ; Automatic table of contents
 (if (require 'toc-org nil t)
     (progn
       (add-hook 'org-mode-hook 'toc-org-mode)
@@ -139,135 +141,135 @@
 
 ;; org-refile
 (after! org-refile
-;; (setq org-refile-targets
-;;       '(("projects.org" :regexp . "\\(?:\\(?:Note\\|Task\\)s\\)")
-;;         ("work.org" :regexp . "\\(?:\\(?:Note\\|Task\\)s\\)")))
-(setq org-refile-use-outline-path 'file)
-(setq org-outline-path-complete-in-steps nil))
+  ;; (setq org-refile-targets
+  ;;       '(("projects.org" :regexp . "\\(?:\\(?:Note\\|Task\\)s\\)")
+  ;;         ("work.org" :regexp . "\\(?:\\(?:Note\\|Task\\)s\\)")))
+  (setq org-refile-use-outline-path 'file)
+  (setq org-outline-path-complete-in-steps nil))
 ;; Much of the org setup was copied from here https://github.com/rougier/emacs-gtd
 (after! org-agenda
-(setq org-agenda-span 'day)
-(setq org-agenda-start-day nil)
+  (setq org-agenda-span 'day)
+  (setq org-agenda-start-day nil)
 
-;;(setq org-agenda-custom-commands
-;;      '(("g" "Get Things Done (GTD)"
-;;         ((agenda ""
-;;                  ((org-agenda-skip-function
-;;                    '(org-agenda-skip-entry-if 'deadline))
-;;                   (org-deadline-warning-days 0)))
-;;          (todo "NEXT"
-;;                ((org-agenda-skip-function
-;;                  '(org-agenda-skip-entry-if 'deadline))
-;;                 (org-agenda-prefix-format "  %i %-12:c [%e] ")
-;;                 (org-agenda-overriding-header "\nTasks\n")))
-;;          (agenda nil
-;;                  ((org-agenda-entry-types '(:deadline))
-;;                   (org-agenda-format-date "")
-;;                   (org-deadline-warning-days 7)
-;;                   (org-agenda-skip-function
-;;                    '(org-agenda-skip-entry-if 'notregexp "\\* NEXT"))
-;;                   (org-agenda-overriding-header "\nDeadlines")))
-;;          (tags-todo "inbox"
-;;                     ((org-agenda-prefix-format "  %?-12t% s")
-;;                      (org-agenda-overriding-header "\nInbox\n")))
-;;          (tags "CLOSED>=\"<today>\""
-;;                ((org-agenda-overriding-header "\nCompleted today\n")))))))
-)
+  ;;(setq org-agenda-custom-commands
+  ;;      '(("g" "Get Things Done (GTD)"
+  ;;         ((agenda ""
+  ;;                  ((org-agenda-skip-function
+  ;;                    '(org-agenda-skip-entry-if 'deadline))
+  ;;                   (org-deadline-warning-days 0)))
+  ;;          (todo "NEXT"
+  ;;                ((org-agenda-skip-function
+  ;;                  '(org-agenda-skip-entry-if 'deadline))
+  ;;                 (org-agenda-prefix-format "  %i %-12:c [%e] ")
+  ;;                 (org-agenda-overriding-header "\nTasks\n")))
+  ;;          (agenda nil
+  ;;                  ((org-agenda-entry-types '(:deadline))
+  ;;                   (org-agenda-format-date "")
+  ;;                   (org-deadline-warning-days 7)
+  ;;                   (org-agenda-skip-function
+  ;;                    '(org-agenda-skip-entry-if 'notregexp "\\* NEXT"))
+  ;;                   (org-agenda-overriding-header "\nDeadlines")))
+  ;;          (tags-todo "inbox"
+  ;;                     ((org-agenda-prefix-format "  %?-12t% s")
+  ;;                      (org-agenda-overriding-header "\nInbox\n")))
+  ;;          (tags "CLOSED>=\"<today>\""
+  ;;                ((org-agenda-overriding-header "\nCompleted today\n")))))))
+  )
 (after! org-element
-(setq org-element-use-cache nil)
-)
+  (setq org-element-use-cache nil)
+  )
 ;; org-roam settings
 (setq org-roam-directory (file-truename "~/syncthing/org/org-roam"))
 (after! org-roam
-(setq org-roam-db-location (file-truename "~/.org/org-roam.db"))
-(org-roam-db-autosync-mode) ;; Syncs the org-roam database on startup, will fail if emacs-sql doesn't exists yet. To fix, run the command manually
+  (setq org-roam-db-location (file-truename "~/.org/org-roam.db"))
+  (org-roam-db-autosync-mode) ;; Syncs the org-roam database on startup, will fail if emacs-sql doesn't exists yet. To fix, run the command manually
 
-(setq org-roam-capture-templates
-      '(("d" "Docs Note" plain "%?"
-         :if-new
-         (file+head "docs/${slug}.org" "#+title: ${title}\n#+filetags: docs")
-         :immediate-finish t
-         :unnarrowed t)
-        ("p" "Project Notes" plain "%?"
-         :if-new
-         (file+head "projects/${title}.org" "#+title: ${title}\n#+filetags: project")
-         :immediate-finish t
-         :unnarrowed t)
-        ("w" "Work notes" plain "%?"
-         :if-new
-         (file+head "worknotes/${title}.org" "#+title: ${title}\n#+filetags: work")
-         :immediate-finish t
-         :unnarrowed t)
-        ("n" "Personal Notes" plain "%?"
-         :if-new
-         (file+head "notes/${title}.org" "#+title: ${title}\n")
-         :immediate-finish t
-         :unnarrowed t)
+  (setq org-roam-capture-templates
+        '(("d" "Docs Note" plain "%?"
+           :if-new
+           (file+head "docs/${slug}.org" "#+title: ${title}\n#+filetags: docs")
+           :immediate-finish t
+           :unnarrowed t)
+          ("p" "Project Notes" plain "%?"
+           :if-new
+           (file+head "projects/${title}.org" "#+title: ${title}\n#+filetags: project")
+           :immediate-finish t
+           :unnarrowed t)
+          ("w" "Work notes" plain "%?"
+           :if-new
+           (file+head "worknotes/${title}.org" "#+title: ${title}\n#+filetags: work")
+           :immediate-finish t
+           :unnarrowed t)
+          ("n" "Personal Notes" plain "%?"
+           :if-new
+           (file+head "notes/${title}.org" "#+title: ${title}\n")
+           :immediate-finish t
+           :unnarrowed t)
+          )
         )
-      )
-(setq org-roam-dailies-directory "daily/")
+  (setq org-roam-dailies-directory "daily/")
 
-(setq org-roam-dailies-capture-templates
-      '(("d" "default" entry
-         "* %?"
-         :target (file+head "%<%Y-%m-%d>.org"
-                            "#+title: %<%Y-%m-%d>\n"))))
-(cl-defmethod org-roam-node-type ((node org-roam-node))
-  "Return the TYPE of NODE."
-  (condition-case nil
-      (file-name-nondirectory
-       (directory-file-name
-        (file-name-directory
-         (file-relative-name (org-roam-node-file node) org-roam-directory))))
-    (error "")))
-(setq org-roam-node-display-template
-      (concat "${type:15} ${title:*} "
-              (propertize "${tags:10}" 'face 'org-tag)
-              )
-      )
-)
+  (setq org-roam-dailies-capture-templates
+        '(("d" "default" entry
+           "* %?"
+           :target (file+head "%<%Y-%m-%d>.org"
+                              "#+title: %<%Y-%m-%d>\n"))))
+  (cl-defmethod org-roam-node-type ((node org-roam-node))
+    "Return the TYPE of NODE."
+    (condition-case nil
+        (file-name-nondirectory
+         (directory-file-name
+          (file-name-directory
+           (file-relative-name (org-roam-node-file node) org-roam-directory))))
+      (error "")))
+  (setq org-roam-node-display-template
+        (concat "${type:15} ${title:*} "
+                (propertize "${tags:10}" 'face 'org-tag)
+                )
+        )
+  )
 (use-package! websocket
-    :after org-roam)
+  :after org-roam)
 
 (use-package! org-roam-ui
-    :after org-roam ;; or :after org
-;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
-;;         a hookable mode anymore, you're advised to pick something yourself
-;;         if you don't care about startup time, use
-;;  :hook (after-init . org-roam-ui-mode)
-    :config
-    (setq org-roam-ui-sync-theme t
-          org-roam-ui-follow t
-          org-roam-ui-update-on-save t
-          org-roam-ui-open-on-start t))
+  :after org-roam ;; or :after org
+  ;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+  ;;         a hookable mode anymore, you're advised to pick something yourself
+  ;;         if you don't care about startup time, use
+  ;;  :hook (after-init . org-roam-ui-mode)
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start t))
 
 ;; consult-org-roam is a great utility that help search org-roam files
 ;; Settings are defaults with the exception of the keybinds
 (use-package! consult-org-roam
-   :after org-roam
-   :init
-   (require 'consult-org-roam)
-   ;; Activate the minor mode
-   (consult-org-roam-mode 1)
-   :custom
-   ;; Use `ripgrep' for searching with `consult-org-roam-search'
-   (consult-org-roam-grep-func #'consult-ripgrep)
-   ;; Configure a custom narrow key for `consult-buffer'
-   (consult-org-roam-buffer-narrow-key ?r)
-   ;; Display org-roam buffers right after non-org-roam buffers
-   ;; in consult-buffer (and not down at the bottom)
-   (consult-org-roam-buffer-after-buffers t)
-   :config
-   ;; Eventually suppress previewing for certain functions
-   (consult-customize
-    consult-org-roam-forward-links
-    :preview-key "M-.")
-   (map! :leader
-         :desc "Search in org-roam dir" :n "n r S" #'consult-org-roam-search
-         :desc "Find a file in org-roam dir" :n "n r e" #'consult-org-roam-file-find
-         :desc "Consult backlinks" :n "n r b" #'consult-org-roam-backlinks
-         :desc "Consult backlinks (recursively)" :n "n r B" #'consult-org-roam-backlinks-recursive
-         :desc "Consult forward links" :n "n r l" #'consult-org-roam-forward-links))
+  :after org-roam
+  :init
+  (require 'consult-org-roam)
+  ;; Activate the minor mode
+  (consult-org-roam-mode 1)
+  :custom
+  ;; Use `ripgrep' for searching with `consult-org-roam-search'
+  (consult-org-roam-grep-func #'consult-ripgrep)
+  ;; Configure a custom narrow key for `consult-buffer'
+  (consult-org-roam-buffer-narrow-key ?r)
+  ;; Display org-roam buffers right after non-org-roam buffers
+  ;; in consult-buffer (and not down at the bottom)
+  (consult-org-roam-buffer-after-buffers t)
+  :config
+  ;; Eventually suppress previewing for certain functions
+  (consult-customize
+   consult-org-roam-forward-links
+   :preview-key "M-.")
+  (map! :leader
+        :desc "Search in org-roam dir" :n "n r S" #'consult-org-roam-search
+        :desc "Find a file in org-roam dir" :n "n r e" #'consult-org-roam-file-find
+        :desc "Consult backlinks" :n "n r b" #'consult-org-roam-backlinks
+        :desc "Consult backlinks (recursively)" :n "n r B" #'consult-org-roam-backlinks-recursive
+        :desc "Consult forward links" :n "n r l" #'consult-org-roam-forward-links))
 
 (defun organised-exchange ()
   "Sync Outlook Calendar ics with Org Agenda."
@@ -284,7 +286,7 @@
 (defun no-hl-line-hook ()
   (hl-line-mode -1))
 
-(add-hook! 'org-mode-hook 'writeroom-mode 'no-line-numbers-hook 'no-hl-line-hook)
+;; (add-hook! 'org-mode-hook 'writeroom-mode 'no-line-numbers-hook 'no-hl-line-hook)
 (add-hook! 'yaml-mode-hook 'flymake-yamllint-setup)
 
 ;; Auto revert (refresh actually, I don't understand the language here) files when they change
@@ -369,6 +371,9 @@
 (use-package! magit-todos
   :after magit
   :config (magit-todos-mode 1))
+
+(use-package! tramp-rpc
+  :after tramp)
 ;; (defun chezmoi--evil-insert-state-enter ()
 ;;   "Run after evil-insert-state-entry."
 ;;   (chezmoi-template-buffer-display nil (point))
@@ -434,7 +439,7 @@
 ;; (add-to-list 'tramp-connection-properties
 ;;              (list (regexp-quote "/ssh:fbartik@bastion2.osc.edu:")
 ;;                    "remote-shell" "/bin/bash"))
-;r(use-package! plz)
+                                        ;r(use-package! plz)
 ;; (if (eq system-type 'darwin)
 ;;   (load "~/.hammerspoon/Spoons/editWithEmacs.spoon/hammerspoon.el")
 ;; )
@@ -444,11 +449,54 @@
 ;;  (concat
 ;;  "-o ControlPath=/Users/fbartik/.ssh/cm-%%r@%%h:%%p "
 ;;  "-o ControlMaster=auto -o ControlPersist=yes"))
-(customize-set-variable 'tramp-use-ssh-controlmaster-options nil)
+;; (customize-set-variable 'tramp-use-ssh-controlmaster-options nil)
 (setq tramp-verbose 6)
-(setq tramp-terminal-type "tramp")
+;; (setq tramp-terminal-type "tramp")
 ;; (setq tramp-shell-prompt-pattern "\\(?:^\\|\r\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*")
 (add-to-list 'warning-suppress-log-types '(lsp-mode)) ;; Necessary because semgrep sends a message everytime it starts
 (add-to-list 'warning-suppress-types '(lsp-mode))
 
 (setq +evil-want-o/O-to-continue-comments nil)
+
+;; mu4e
+(after! mu4e
+  (setq mu4e-maildir "~/.mail"
+        mu4e-update-interval 300)
+
+  (defvar my-mu4e-gmail-accounts '("gmail-oz" "gmail-fb")
+    "List of account directory names that are Gmail accounts.")
+
+  (defvar my-mu4e-icloud-accounts '("icloud")
+    "List of account directory names that are iCloud accounts.")
+
+  (defun my-mu4e-account-name (msg)
+    "Extract the top-level account directory from MSG's maildir."
+    (car (split-string (substring (mu4e-message-field msg :maildir) 1) "/")))
+
+  (defun my-mu4e-folder (msg type)
+    "Return the correct folder for MSG based on account type."
+    (let ((account (my-mu4e-account-name msg)))
+      (format "/%s/%s" account
+              (cond
+               ((member account my-mu4e-gmail-accounts)
+                (pcase type
+                  ('trash  "[Gmail]/Trash")
+                  ('sent   "[Gmail]/Sent Mail")
+                  ('drafts "[Gmail]/Drafts")
+                  ('refile "[Gmail]/All Mail")))
+               ((member account my-mu4e-icloud-accounts)
+                (pcase type
+                  ('trash  "Deleted Messages")
+                  ('sent   "Sent Messages")
+                  ('drafts "Drafts")
+                  ('refile "Archive")))
+               (t (pcase type
+                    ('trash  "Trash")
+                    ('sent   "Sent")
+                    ('drafts "Drafts")
+                    ('refile "Archive")))))))
+
+  (setq mu4e-trash-folder  (lambda (msg) (my-mu4e-folder msg 'trash))
+        mu4e-sent-folder   (lambda (msg) (my-mu4e-folder msg 'sent))
+        mu4e-drafts-folder (lambda (msg) (my-mu4e-folder msg 'drafts))
+        mu4e-refile-folder (lambda (msg) (my-mu4e-folder msg 'refile))))
