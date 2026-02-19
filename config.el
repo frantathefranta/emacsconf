@@ -372,8 +372,8 @@
   :after magit
   :config (magit-todos-mode 1))
 
-(use-package! tramp-rpc
-  :after tramp)
+;; (use-package! tramp-rpc
+;;   :after tramp)
 ;; (defun chezmoi--evil-insert-state-enter ()
 ;;   "Run after evil-insert-state-entry."
 ;;   (chezmoi-template-buffer-display nil (point))
