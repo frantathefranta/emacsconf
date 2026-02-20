@@ -21,7 +21,13 @@
 ;; accept. For example:
 ;;
 (when (doom-font-exists-p "Aporetic Sans Mono")
-  (setq doom-font                (font-spec :name "Aporetic Sans Mono" :width 'expanded :size 17 :slant 'normal)))
+  (setq doom-font                (font-spec :name "Aporetic Sans Mono" :width 'regular :size 18 :slant 'normal)))
+;; Emacs when launched in daemon doesn't set a font
+(defun franta/load-fonts-in-client ()
+  (setq doom-font                (font-spec :name "Aporetic Sans Mono" :width 'regular :size 18 :slant 'normal))
+  (doom/reload-font))
+(add-hook 'after-init-hook 'franta/load-fonts-in-client)
+
 (when (doom-font-exists-p "ETBembo")
   (setq doom-variable-pitch-font (font-spec :name "ETBembo")))
 
@@ -459,9 +465,15 @@
 (setq +evil-want-o/O-to-continue-comments nil)
 
 ;; mu4e
+(add-to-list 'load-path "~/.nix-profile/share/emacs/site-lisp/mu4e")
 (after! mu4e
-  (setq mu4e-maildir "~/.mail"
-        mu4e-update-interval 300)
+  (setq mu4e-maildir "~/.mail")
+        ;; mu4e-update-interval 300)
+
+  ;; Doom's +mbsync flag sets this to t, but that causes mbsync to lose
+  ;; UID tracking (U=<n> in filenames) whenever mu4e reads a message from
+  ;; new/ — mbsync then re-downloads the message on the next sync.
+  (setq mu4e-change-filenames-when-moving nil)
 
   (defvar my-mu4e-gmail-accounts '("gmail-oz" "gmail-fb")
     "List of account directory names that are Gmail accounts.")
@@ -499,4 +511,22 @@
   (setq mu4e-trash-folder  (lambda (msg) (my-mu4e-folder msg 'trash))
         mu4e-sent-folder   (lambda (msg) (my-mu4e-folder msg 'sent))
         mu4e-drafts-folder (lambda (msg) (my-mu4e-folder msg 'drafts))
-        mu4e-refile-folder (lambda (msg) (my-mu4e-folder msg 'refile))))
+        mu4e-refile-folder (lambda (msg) (my-mu4e-folder msg 'refile)))
+
+  ;; Exclude [Gmail]/All Mail from the default unread/inbox views.
+  ;; Gmail syncs every Inbox message into All Mail too, creating duplicate local
+  ;; copies. Without this, reading a message in Inbox leaves the All Mail copy
+  ;; appearing as unread until the next mbsync run pulls the flag from the server.
+  (setq mu4e-bookmarks
+        `((:name "Inbox"
+           :query "maildir:/icloud/Inbox OR maildir:/gmail-fb/Inbox OR maildir:/gmail-oz/Inbox"
+           :key ?i)
+          (:name "Unread"
+           :query "flag:unread AND NOT flag:trashed AND NOT maildir:\"/gmail-fb/[Gmail]/All Mail\" AND NOT maildir:\"/gmail-oz/[Gmail]/All Mail\""
+           :key ?u)
+          (:name "Today"
+           :query "date:today..now"
+           :key ?t)
+          (:name "Last 7 days"
+           :query "date:7d..now"
+           :key ?w))))
