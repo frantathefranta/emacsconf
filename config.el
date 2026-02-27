@@ -482,8 +482,11 @@
     "List of account directory names that are iCloud accounts.")
 
   (defun my-mu4e-account-name (msg)
-    "Extract the top-level account directory from MSG's maildir."
-    (car (split-string (substring (mu4e-message-field msg :maildir) 1) "/")))
+    "Extract the top-level account directory from MSG's maildir.
+When MSG is nil (e.g. composing a new message), default to the primary account."
+    (if msg
+        (car (split-string (substring (mu4e-message-field msg :maildir) 1) "/"))
+      "icloud"))
 
   (defun my-mu4e-folder (msg type)
     "Return the correct folder for MSG based on account type."
@@ -530,3 +533,14 @@
           (:name "Last 7 days"
            :query "date:7d..now"
            :key ?w))))
+
+;; Sign email
+(setq mml-secure-openpgp-sign-with-sender t)
+
+;; SMTP setup
+(setq sendmail-program "~/.nix-profile/bin/msmtp"
+      send-mail-function 'sendmail-send-it
+      message-send-mail-function 'message-send-mail-with-sendmail
+      mail-specify-envelope-from t
+      message-sendmail-envelope-from 'header
+      mail-envelope-from 'header)
