@@ -378,6 +378,28 @@
   :after magit
   :config (magit-todos-mode 1))
 
+(when (eq system-type 'darwin)
+  (require 'acp)
+  (require 'agent-shell)
+  (setq agent-shell-anthropic-claude-environment
+        (agent-shell-make-environment-variables
+         "ANTHROPIC_API_KEY" ""
+         "ANTHROPIC_MODEL" "qwen3-coder:30b"
+         "ANTHROPIC_AUTH_TOKEN" "ollama"
+         "ANTHROPIC_BASE_URL" "http://localhost:11434"))
+  (setq agent-shell-session-strategy 'prompt)
+  (setq agent-shell-preferred-agent-config (agent-shell-anthropic-make-claude-code-config))
+  (use-package! agent-shell
+    :config
+    ;; Evil state-specific RET behavior: insert mode = newline, normal mode = send
+    (evil-define-key 'insert agent-shell-mode-map (kbd "RET") #'newline)
+    (evil-define-key 'normal agent-shell-mode-map (kbd "RET") #'comint-send-input)
+
+    ;; Configure *agent-shell-diff* buffers to start in Emacs state
+    (add-hook 'diff-mode-hook
+	    (lambda ()
+	      (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
+		(evil-emacs-state))))))
 ;; (use-package! tramp-rpc
 ;;   :after tramp)
 ;; (defun chezmoi--evil-insert-state-enter ()
@@ -466,66 +488,26 @@
 
 ;; mu4e
 (add-to-list 'load-path "~/.nix-profile/share/emacs/site-lisp/mu4e")
+
 (after! mu4e
   (setq mu4e-maildir "~/.mail")
-        ;; mu4e-update-interval 300)
 
-  ;; Doom's +mbsync flag sets this to t, but that causes mbsync to lose
-  ;; UID tracking (U=<n> in filenames) whenever mu4e reads a message from
-  ;; new/ — mbsync then re-downloads the message on the next sync.
-  (setq mu4e-change-filenames-when-moving nil)
+  ;; Use msmtp for sending; --read-envelope-from lets msmtp select the right
+  ;; account based on the From header automatically.
+  (setq sendmail-program (executable-find "msmtp")
+        send-mail-function #'smtpmail-send-it
+        message-sendmail-f-is-evil t
+        message-sendmail-extra-arguments '("--read-envelope-from")
+        message-send-mail-function #'message-send-mail-with-sendmail)
 
-  (defvar my-mu4e-gmail-accounts '("gmail-oz" "gmail-fb")
-    "List of account directory names that are Gmail accounts.")
-
-  (defvar my-mu4e-icloud-accounts '("icloud")
-    "List of account directory names that are iCloud accounts.")
-
-  (defun my-mu4e-account-name (msg)
-    "Extract the top-level account directory from MSG's maildir.
-When MSG is nil (e.g. composing a new message), default to the primary account."
-    (if msg
-        (car (split-string (substring (mu4e-message-field msg :maildir) 1) "/"))
-      "icloud"))
-
-  (defun my-mu4e-folder (msg type)
-    "Return the correct folder for MSG based on account type."
-    (let ((account (my-mu4e-account-name msg)))
-      (format "/%s/%s" account
-              (cond
-               ((member account my-mu4e-gmail-accounts)
-                (pcase type
-                  ('trash  "[Gmail]/Trash")
-                  ('sent   "[Gmail]/Sent Mail")
-                  ('drafts "[Gmail]/Drafts")
-                  ('refile "[Gmail]/All Mail")))
-               ((member account my-mu4e-icloud-accounts)
-                (pcase type
-                  ('trash  "Deleted Messages")
-                  ('sent   "Sent Messages")
-                  ('drafts "Drafts")
-                  ('refile "Archive")))
-               (t (pcase type
-                    ('trash  "Trash")
-                    ('sent   "Sent")
-                    ('drafts "Drafts")
-                    ('refile "Archive")))))))
-
-  (setq mu4e-trash-folder  (lambda (msg) (my-mu4e-folder msg 'trash))
-        mu4e-sent-folder   (lambda (msg) (my-mu4e-folder msg 'sent))
-        mu4e-drafts-folder (lambda (msg) (my-mu4e-folder msg 'drafts))
-        mu4e-refile-folder (lambda (msg) (my-mu4e-folder msg 'refile)))
-
-  ;; Exclude [Gmail]/All Mail from the default unread/inbox views.
-  ;; Gmail syncs every Inbox message into All Mail too, creating duplicate local
-  ;; copies. Without this, reading a message in Inbox leaves the All Mail copy
-  ;; appearing as unread until the next mbsync run pulls the flag from the server.
+  ;; Exclude [Gmail]/All Mail and Junk from unread/inbox views to avoid
+  ;; duplicates (Gmail labels every Inbox message into All Mail too).
   (setq mu4e-bookmarks
         `((:name "Inbox"
            :query "maildir:/icloud/Inbox OR maildir:/gmail-fb/Inbox OR maildir:/gmail-oz/Inbox"
            :key ?i)
           (:name "Unread"
-           :query "flag:unread AND NOT flag:trashed AND NOT maildir:\"/gmail-fb/[Gmail]/All Mail\" AND NOT maildir:\"/gmail-oz/[Gmail]/All Mail\""
+           :query "flag:unread AND NOT flag:trashed AND NOT maildir:\"/gmail-fb/Archive\" AND NOT maildir:\"/gmail-oz/Archive\" AND NOT maildir:\"/gmail-oz/Spam\" AND NOT maildir:\"/gmail-fb/Spam\""
            :key ?u)
           (:name "Today"
            :query "date:today..now"
@@ -537,10 +519,29 @@ When MSG is nil (e.g. composing a new message), default to the primary account."
 ;; Sign email
 (setq mml-secure-openpgp-sign-with-sender t)
 
-;; SMTP setup
-(setq sendmail-program "~/.nix-profile/bin/msmtp"
-      send-mail-function 'sendmail-send-it
-      message-send-mail-function 'message-send-mail-with-sendmail
-      mail-specify-envelope-from t
-      message-sendmail-envelope-from 'header
-      mail-envelope-from 'header)
+;; iCloud — primary/default account (t = default context)
+(set-email-account! "icloud"
+  '((mu4e-sent-folder       . "/icloud/Sent")
+    (mu4e-drafts-folder     . "/icloud/Drafts")
+    (mu4e-trash-folder      . "/icloud/Deleted Messages")
+    (mu4e-refile-folder     . "/icloud/Archive")
+    (smtpmail-smtp-user     . "fb@franta.us"))
+  t)
+
+;; Gmail — frantabart
+(set-email-account! "gmail-fb"
+  '((mu4e-sent-folder       . "/gmail-fb/Sent")
+    (mu4e-drafts-folder     . "/gmail-fb/Drafts")
+    (mu4e-trash-folder      . "/gmail-fb/Trash")
+    (mu4e-refile-folder     . "/gmail-fb/Archive")
+    (smtpmail-smtp-user     . "frantabart@gmail.com")
+    (user-mail-address      . "frantabart@gmail.com")))
+
+;; Gmail — ozzfranta
+(set-email-account! "gmail-oz"
+  '((mu4e-sent-folder       . "/gmail-oz/Sent")
+    (mu4e-drafts-folder     . "/gmail-oz/Drafts")
+    (mu4e-trash-folder      . "/gmail-oz/Trash")
+    (mu4e-refile-folder     . "/gmail-oz/Archive")
+    (smtpmail-smtp-user     . "ozzfranta@gmail.com")
+    (user-mail-address      . "ozzfranta@gmail.com")))
