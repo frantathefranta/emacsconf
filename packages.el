@@ -15,7 +15,6 @@
 ;;(package! hass)
 (package! hackernews)
 (package! theme-changer)
-(package! chezmoi)
 ;; (package! org :pin "a1df10f679a72fe75c3d95d1e41b5fdb689fe22e")
 (package! exercism)
 (package! org-modern)
@@ -44,6 +43,9 @@
 (package! shell-maker)
 (package! acp)
 (package! agent-shell)
+(package! markdown-indent-mode)
+(package! auth-source-1password)
+(package! org-gtd)
 ;; to install a package directly from a remote git repo, you must specify a
 ;; `:recipe'. You'll find documentation on what `:recipe' accepts here:
 ;; https://github.com/radian-software/straight.el#the-recipe-format

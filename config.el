@@ -88,31 +88,33 @@
 ;;(toggle-debug-on-error)
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
+
 (setq-default display-line-numbers-grow-only   t
               display-line-numbers-type        'relative
               display-line-numbers-width-start t)
+
 (setq flycheck-disabled-checkers '(proselint))
 (setq ispell-personal-dictionary "~/.config/doom/ispell.dictionary")
 
 ;; Set Emacs to open full screen
 
-(setq initial-frame-alist '((top . 1) (left . 1) (width . 114) (height . 32)))
+;; (setq initial-frame-alist '((top . 1) (left . 1) (width . 114) (height . 32)))
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
 ;; (setq org-agenda-hide-tags-regexp ".")
 
 (setq org-directory "~/syncthing/org/")
-(setq org-agenda-files (list "~/syncthing/org/inbox.org"
-                             "~/syncthing/org/agenda.org"
-                             "~/syncthing/org/projects.org"
-                             "~/syncthing/org/work.org"
-                             "~/git/organised_exchange/exchange.org"))
+;; (setq org-agenda-files (list "~/syncthing/org/inbox.org"
+;;                              "~/syncthing/org/agenda.org"
+;;                              "~/syncthing/org/projects.org"
+;;                              "~/syncthing/org/work.org"
+;;                              "~/git/organised_exchange/exchange.org"))
 ;; general org settings
 (after! org
-  (custom-set-faces!
-    '(org-level-2 :inherit outline-2 :height 1.3 :weight regular)
-    '(org-level-1 :inherit outline-1 :height 1.4 :weight semi-bold)
-    '(org-document-title :height 1.5 :underline t :slant normal :weight: semi-bold))
+  ;; (custom-set-faces!
+  ;;   '(org-level-2 :inherit outline-2 :height 1.3 :weight regular)
+  ;;   '(org-level-1 :inherit outline-1 :height 1.4 :weight semi-bold)
+  ;;   '(org-document-title :height 1.5 :underline t :slant normal :weight: semi-bold))
   (add-to-list 'org-tags-exclude-from-inheritance "project")
   (setq org-capture-templates
         `(
@@ -124,8 +126,8 @@
                     "/Entered on/ %U"))))
   (setq org-log-done 'time)
   (setq org-hide-emphasis-markers t)
-  (setq org-todo-keywords
-        '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|" "DONE(d)")))
+  ;; (setq org-todo-keywords
+  ;;       '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|" "DONE(d)")))
 
   ;; (defun log-todo-next-creation-date (&rest ignore)
   ;;   "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
@@ -145,42 +147,6 @@
       (add-hook 'markdown-mode-hook 'toc-org-mode))
   (warn "toc-org not found"))
 
-;; org-refile
-(after! org-refile
-  ;; (setq org-refile-targets
-  ;;       '(("projects.org" :regexp . "\\(?:\\(?:Note\\|Task\\)s\\)")
-  ;;         ("work.org" :regexp . "\\(?:\\(?:Note\\|Task\\)s\\)")))
-  (setq org-refile-use-outline-path 'file)
-  (setq org-outline-path-complete-in-steps nil))
-;; Much of the org setup was copied from here https://github.com/rougier/emacs-gtd
-(after! org-agenda
-  (setq org-agenda-span 'day)
-  (setq org-agenda-start-day nil)
-
-  ;;(setq org-agenda-custom-commands
-  ;;      '(("g" "Get Things Done (GTD)"
-  ;;         ((agenda ""
-  ;;                  ((org-agenda-skip-function
-  ;;                    '(org-agenda-skip-entry-if 'deadline))
-  ;;                   (org-deadline-warning-days 0)))
-  ;;          (todo "NEXT"
-  ;;                ((org-agenda-skip-function
-  ;;                  '(org-agenda-skip-entry-if 'deadline))
-  ;;                 (org-agenda-prefix-format "  %i %-12:c [%e] ")
-  ;;                 (org-agenda-overriding-header "\nTasks\n")))
-  ;;          (agenda nil
-  ;;                  ((org-agenda-entry-types '(:deadline))
-  ;;                   (org-agenda-format-date "")
-  ;;                   (org-deadline-warning-days 7)
-  ;;                   (org-agenda-skip-function
-  ;;                    '(org-agenda-skip-entry-if 'notregexp "\\* NEXT"))
-  ;;                   (org-agenda-overriding-header "\nDeadlines")))
-  ;;          (tags-todo "inbox"
-  ;;                     ((org-agenda-prefix-format "  %?-12t% s")
-  ;;                      (org-agenda-overriding-header "\nInbox\n")))
-  ;;          (tags "CLOSED>=\"<today>\""
-  ;;                ((org-agenda-overriding-header "\nCompleted today\n")))))))
-  )
 (after! org-element
   (setq org-element-use-cache nil)
   )
@@ -277,14 +243,6 @@
         :desc "Consult backlinks (recursively)" :n "n r B" #'consult-org-roam-backlinks-recursive
         :desc "Consult forward links" :n "n r l" #'consult-org-roam-forward-links))
 
-(defun organised-exchange ()
-  "Sync Outlook Calendar ics with Org Agenda."
-  (interactive)
-  (if (get-buffer "~/git/organised_exchange/exchange.org")
-      (kill-buffer "~/git/organised_exchange/exchange.org"))
-  (shell-command "~/git/organised-exchange/run.sh")
-  (message "calendar imported!"))
-
 (defun no-line-numbers-hook ()
   (display-line-numbers-mode -1))
 ;; Something breaks in org-mode when hl-line-mode is turned on and can't figure out why
@@ -372,7 +330,6 @@
 (global-set-key (kbd "C-c a") 'my-increment-number-at-point)
 (global-set-key (kbd "C-c x") 'my-decrement-number-at-point)
 
-(use-package! chezmoi)
 (use-package! exercism)
 (use-package! magit-todos
   :after magit
@@ -397,9 +354,9 @@
 
     ;; Configure *agent-shell-diff* buffers to start in Emacs state
     (add-hook 'diff-mode-hook
-	    (lambda ()
-	      (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
-		(evil-emacs-state))))))
+	      (lambda ()
+	        (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
+		  (evil-emacs-state))))))
 ;; (use-package! tramp-rpc
 ;;   :after tramp)
 ;; (defun chezmoi--evil-insert-state-enter ()
@@ -521,27 +478,90 @@
 
 ;; iCloud — primary/default account (t = default context)
 (set-email-account! "icloud"
-  '((mu4e-sent-folder       . "/icloud/Sent")
-    (mu4e-drafts-folder     . "/icloud/Drafts")
-    (mu4e-trash-folder      . "/icloud/Deleted Messages")
-    (mu4e-refile-folder     . "/icloud/Archive")
-    (smtpmail-smtp-user     . "fb@franta.us"))
-  t)
+                    '((mu4e-sent-folder       . "/icloud/Sent")
+                      (mu4e-drafts-folder     . "/icloud/Drafts")
+                      (mu4e-trash-folder      . "/icloud/Deleted Messages")
+                      (mu4e-refile-folder     . "/icloud/Archive")
+                      (smtpmail-smtp-user     . "fb@franta.us"))
+                    t)
 
 ;; Gmail — frantabart
 (set-email-account! "gmail-fb"
-  '((mu4e-sent-folder       . "/gmail-fb/Sent")
-    (mu4e-drafts-folder     . "/gmail-fb/Drafts")
-    (mu4e-trash-folder      . "/gmail-fb/Trash")
-    (mu4e-refile-folder     . "/gmail-fb/Archive")
-    (smtpmail-smtp-user     . "frantabart@gmail.com")
-    (user-mail-address      . "frantabart@gmail.com")))
+                    '((mu4e-sent-folder       . "/gmail-fb/Sent")
+                      (mu4e-drafts-folder     . "/gmail-fb/Drafts")
+                      (mu4e-trash-folder      . "/gmail-fb/Trash")
+                      (mu4e-refile-folder     . "/gmail-fb/Archive")
+                      (smtpmail-smtp-user     . "frantabart@gmail.com")
+                      (user-mail-address      . "frantabart@gmail.com")))
 
 ;; Gmail — ozzfranta
 (set-email-account! "gmail-oz"
-  '((mu4e-sent-folder       . "/gmail-oz/Sent")
-    (mu4e-drafts-folder     . "/gmail-oz/Drafts")
-    (mu4e-trash-folder      . "/gmail-oz/Trash")
-    (mu4e-refile-folder     . "/gmail-oz/Archive")
-    (smtpmail-smtp-user     . "ozzfranta@gmail.com")
-    (user-mail-address      . "ozzfranta@gmail.com")))
+                    '((mu4e-sent-folder       . "/gmail-oz/Sent")
+                      (mu4e-drafts-folder     . "/gmail-oz/Drafts")
+                      (mu4e-trash-folder      . "/gmail-oz/Trash")
+                      (mu4e-refile-folder     . "/gmail-oz/Archive")
+                      (smtpmail-smtp-user     . "ozzfranta@gmail.com")
+                      (user-mail-address      . "ozzfranta@gmail.com")))
+
+(load! "~/git/bird-mode/bird-mode.el")
+(add-hook 'bird-mode-hook #'eglot-ensure)
+
+(use-package markdown-indent-mode :hook (markdown-mode . markdown-indent-mode))
+
+(use-package! org-gtd
+  :after org
+  :init
+  ;; Suppress upgrade warnings (must be set before package loads)
+  (setq org-gtd-update-ack "4.0.0")
+  ;; Set GTD directory before package loads
+  (setq org-gtd-directory "~/syncthing/org/gtd/")
+
+  :custom
+  (org-todo-keywords '((sequence "TODO" "NEXT" "WAIT" "|" "DONE" "CNCL")))
+  (org-gtd-keyword-mapping '((todo . "TODO")
+                             (next . "NEXT")
+                             (wait . "WAIT")
+                             (done . "DONE")
+                             (canceled . "CNCL")))
+  ;; Enable per-type refile prompting (recommended)
+  ;; Without this, all items auto-refile to first target without prompting
+  (org-gtd-refile-to-any-target nil)
+
+  :config
+  (org-edna-mode)
+  ;; Add org-gtd files to your agenda (in :config so org-gtd-directory is defined)
+  (setq org-agenda-files (list org-gtd-directory))
+  ;; Doom-style leader key bindings
+  (map! :leader
+        (:prefix ("1" . "org-gtd")
+         :desc "Capture"        "c"  #'org-gtd-capture
+         :desc "Engage"         "e"  #'org-gtd-engage
+         :desc "Process inbox"  "p"  #'org-gtd-process-inbox
+         :desc "Show all next"  "n"  #'org-gtd-show-all-next
+         :desc "Stuck projects" "s"  #'org-gtd-reflect-stuck-projects))
+  ;; Clarify map binding
+  (map! :map org-gtd-clarify-mode-map
+        :desc "Organize this item" "C-c c" #'org-gtd-organize)
+  ;; Quick task actions in agenda view
+  (map! :map org-agenda-mode-map
+        :desc "GTD quick actions" "C-c ." #'org-gtd-agenda-transient))
+
+(use-package! auth-source-1password
+  :config
+  (auth-source-1password-enable))
+
+(setq circe-channel-users-count-threshold 0)
+(setq circe-network-options
+      '(("ZNC"
+         :host "znc.franta.us"
+         :port 6697
+         :tls t
+         :user "znc-admin/hackint"
+         :pass (lambda (_)
+                 (auth-source-pick-first-password
+                  :host "ZNC"
+                  :user "password")))))
+
+;; Thought I needed this because of /WHO spam but it was just another client causing it 
+;; (after! circe
+;;   (circe-set-display-handler "354" 'circe-display-ignore))

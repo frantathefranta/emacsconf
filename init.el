@@ -91,7 +91,7 @@
        (debugger +lsp)          ; FIXME stepping through code, to help you add bugs
        direnv
        (docker +lsp)
-       ;;editorconfig      ; let someone else argue about tabs vs spaces
+       editorconfig      ; let someone else argue about tabs vs spaces
        ;;ein               ; tame Jupyter notebooks with emacs
        (eval +overlay)     ; run code, run (also, repls)
        ;;gist              ; interacting with github gists
@@ -150,7 +150,7 @@
        ;;lean              ; for folks with too much to prove
        ;;ledger            ; be audit you can be
        lua               ; one-based indices? one-based indices
-       (markdown +grip)          ; writing docs for people to ignore
+       (markdown +grip +tree-sitter)          ; writing docs for people to ignore
        ;;nim               ; python + lisp at the speed of c
        (nix +tree-sitter +lsp)               ; I hereby declare "nix geht mehr!"
        ;;ocaml             ; an objective camel
@@ -186,7 +186,7 @@
        ;;calendar
        ;;emms
        ;;everywhere        ; *leave* Emacs!? You must be joking
-       ;;irc               ; how neckbeards socialize
+       irc               ; how neckbeards socialize
        ;;(rss +org)        ; emacs as an RSS reader
        ;;twitter           ; twitter client https://twitter.com/vnought
 
