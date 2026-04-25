@@ -46,6 +46,8 @@
 (package! markdown-indent-mode)
 (package! auth-source-1password)
 (package! org-gtd)
+(package! ox-hugo)
+(package! ox-zola :recipe (:host github :repo "gicrisf/ox-zola"))
 ;; to install a package directly from a remote git repo, you must specify a
 ;; `:recipe'. You'll find documentation on what `:recipe' accepts here:
 ;; https://github.com/radian-software/straight.el#the-recipe-format
