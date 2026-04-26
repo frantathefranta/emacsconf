@@ -531,6 +531,8 @@
   (org-edna-mode)
   ;; Add org-gtd files to your agenda (in :config so org-gtd-directory is defined)
   (setq org-agenda-files (list org-gtd-directory))
+  (setq org-gtd-save-after-organize t)
+
   ;; Doom-style leader key bindings
   (map! :leader
         (:prefix ("1" . "org-gtd")
