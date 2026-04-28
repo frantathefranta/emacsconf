@@ -518,7 +518,7 @@
   (setq org-gtd-directory "~/syncthing/org/gtd/")
 
   :custom
-  (org-todo-keywords '((sequence "TODO" "NEXT" "WAIT" "|" "DONE" "CNCL")))
+  (org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "WAIT(w)" "|" "DONE(d)" "CNCL(c)")))
   (org-gtd-keyword-mapping '((todo . "TODO")
                              (next . "NEXT")
                              (wait . "WAIT")
