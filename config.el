@@ -256,8 +256,9 @@
 ;; Auto revert (refresh actually, I don't understand the language here) files when they change
 ;; Enable autorevert globally so that buffers update when files change on disk.
 ;; Very useful when used with file syncing (i.e. syncthing)
-(setq global-auto-revert-mode nil)
+(global-auto-revert-mode 1)
 (setq auto-revert-use-notify t)
+(setq auto-revert-verbose nil)
 
 ;; Using this library https://github.com/zzkt/metabrainz
 (defun franta/org-insert-heading-from-musicbrainz-url (url)
