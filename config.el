@@ -308,28 +308,11 @@
 
 ;; Example usage:
 ;; (franta/extract-artist-and-album-names-from-url "https://musicbrainz.org/release-group/242741bf-182e-45d9-9276-5af8d1b31ad9")
-(defun my-change-number-at-point (change increment)
-  (let ((number (number-at-point))
-        (point (point)))
-    (when number
-      (progn
-        (forward-word)
-        (search-backward (number-to-string number))
-        (replace-match (number-to-string (funcall change number increment)))
-        (goto-char point)))))
-
-(defun my-increment-number-at-point (&optional increment)
-  "Increment number at point like vim's C-a"
-  (interactive "p")
-  (my-change-number-at-point '+ (or increment 1)))
-
-(defun my-decrement-number-at-point (&optional increment)
-  "Decrement number at point like vim's C-x"
-  (interactive "p")
-  (my-change-number-at-point '- (or increment 1)))
-
-(global-set-key (kbd "C-c a") 'my-increment-number-at-point)
-(global-set-key (kbd "C-c x") 'my-decrement-number-at-point)
+(after! eglot
+  (add-hook 'nix-mode-hook
+            (lambda ()
+              (setq eglot-workspace-configuration
+                    '(:nil (:nix (:flake (:autoArchive t :autoEvalInputs t ))))))))
 
 (use-package! exercism)
 (use-package! magit-todos
@@ -483,7 +466,8 @@
                       (mu4e-drafts-folder     . "/icloud/Drafts")
                       (mu4e-trash-folder      . "/icloud/Deleted Messages")
                       (mu4e-refile-folder     . "/icloud/Archive")
-                      (smtpmail-smtp-user     . "fb@franta.us"))
+                      (smtpmail-smtp-user     . "fb@franta.us")
+                      (user-mail-address      . "fb@franta.us"))
                     t)
 
 ;; Gmail — frantabart
@@ -565,6 +549,32 @@
                   :host "ZNC"
                   :user "password")))))
 
-;; Thought I needed this because of /WHO spam but it was just another client causing it 
+;; Thought I needed this because of /WHO spam but it was just another client causing it
 ;; (after! circe
 ;;   (circe-set-display-handler "354" 'circe-display-ignore))
+
+(add-to-list 'auto-mode-alist '("\\.just\\'" . just-mode))
+(use-package! justl
+  :config
+  ;; justl doesn't support evil-mode yet: https://github.com/psibi/justl.el/issues/15
+  (evil-define-key 'normal justl-mode-map
+    (kbd "g") #'justl--refresh-buffer
+    (kbd "e") #'justl-exec-recipe
+    (kbd "E") #'justl-exec-shell
+    (kbd "w") #'justl--exec-recipe-with-args
+    (kbd "W") #'justl-no-exec-shell
+    (kbd "m") #'justl--show-modules
+    (kbd "?") #'justl-help-popup
+    (kbd "h") #'justl-help-popup
+    (kbd "RET") #'justl-go-to-recipe)
+  (evil-define-key 'normal justl-module-mode-map
+    (kbd "g") #'justl--module-refresh-buffer
+    (kbd "e") #'justl-exec-module
+    (kbd "o") #'justl--module-open-justl
+    (kbd "?") #'justl-module-help-popup
+    (kbd "h") #'justl-module-help-popup
+    (kbd "RET") #'justl--go-to-module)
+  (map! :leader (:prefix ("m" . "justl") :desc "exec-recipe" "e" #'justl-exec-recipe))
+  (map! :map just-mode-map
+        :leader
+        "j" #'justl))
