@@ -578,3 +578,8 @@
   (map! :map just-mode-map
         :leader
         "j" #'justl))
+(use-package! ghostel
+  :ensure t)
+(use-package evil-ghostel
+  :after (ghostel evil)
+  :hook (ghostel-mode . evil-ghostel-mode))
