@@ -123,7 +123,17 @@
                     "/Entered on/ %U"))
           ("s" "Slipbox" entry  (file "~/syncthing/org/org-roam/inbox.org")
            ,(concat "* %?\n"
-                    "/Entered on/ %U"))))
+                    "/Entered on/ %U"))
+          ("b" "Blog post" plain
+           (file franta/blog-capture-file)
+           ,(concat "#+title: %(identity franta/blog-capture-title)\n"
+                    "#+date: %<%Y-%m-%d>\n"
+                    "#+author: Franta Bartik\n"
+                    "#+ZOLA_BASE_DIR: ~/git/zolablog\n"
+                    "#+ZOLA_SECTION: blog\n"
+                    "#+ZOLA_DRAFT: true\n"
+                    "#+ZOLA_TAGS:\n\n%?")
+           :jump-to-captured t)))
   (setq org-log-done 'time)
   (setq org-hide-emphasis-markers t)
   ;; (setq org-todo-keywords
@@ -140,12 +150,30 @@
   (custom-set-variables '(org-modern-table nil))
   )
 
+                                        ;; ox-zola blog capture
+(defvar franta/blog-capture-title nil)
+
+(defun franta/blog-capture-file ()
+  "Prompt for a blog post title and return the org source file path."
+  (setq franta/blog-capture-title (read-string "Post title: "))
+  (let* ((slug (thread-last franta/blog-capture-title
+                 downcase
+                 (replace-regexp-in-string "[^a-z0-9]+" "-")
+                 (replace-regexp-in-string "\\(^-+\\|-+$\\)" "")))
+         (dir (expand-file-name "org" "~/git/zolablog")))
+    (make-directory dir t)
+    (expand-file-name (format "%s-%s.org" (format-time-string "%Y-%m-%d") slug) dir)))
+
                                         ; Automatic table of contents
 (if (require 'toc-org nil t)
     (progn
       (add-hook 'org-mode-hook 'toc-org-mode)
       (add-hook 'markdown-mode-hook 'toc-org-mode))
   (warn "toc-org not found"))
+
+(after! ox-zola
+  (setq ox-zola-base-dir (expand-file-name "~/git/zolablog")
+        ox-zola-section "blog"))
 
 (after! org-element
   (setq org-element-use-cache nil)
