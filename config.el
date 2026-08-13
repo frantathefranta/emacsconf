@@ -515,6 +515,8 @@
   (org-gtd-refile-to-any-target nil)
   ;; GTD Horizon 2 areas of focus, prompted for during organize
   (org-gtd-areas-of-focus '("Work" "Learning" "Homelab" "DN42" "Emacs" "Nix"))
+  ;; Widened to fit "Area ▸ Project" once both are combined below (default is 12)
+  (org-gtd-prefix-width 24)
   ;; Predetermined effort estimates offered when prompted (still editable/free-form)
   (org-global-properties '(("Effort_ALL" . "0:15 0:30 1:00 2:00 4:00 8:00")))
   ;; Sort by effort (low first) within org-gtd's next-action/delegated blocks,
@@ -546,24 +548,83 @@
   (advice-add 'org-gtd-view-lang--expand-prefix :filter-return
               (lambda (format-string) (concat format-string "%-6e ")))
 
-  ;; Next actions grouped into effort-based sections (quick/medium/long/unestimated)
-  (defun franta/org-gtd-engage-by-effort ()
-    "Show next actions grouped into sections by effort estimate."
-    (interactive)
-    (org-gtd-view-show
-     '((name . "Next Actions by Effort")
-       (blocks . (((name . "Quick wins (< 30 min)")
-                   (type . next-action)
-                   (effort . (< "0:30")))
-                  ((name . "Medium (30 min - 2 hr)")
-                   (type . next-action)
-                   (effort . (between "0:30" "2:00")))
-                  ((name . "Long (> 2 hr)")
-                   (type . next-action)
-                   (effort . (> "2:00")))
-                  ((name . "No effort estimate")
-                   (type . next-action)
-                   (effort . nil)))))))
+  ;; Show project name alongside (not instead of) area-of-focus. org-gtd's
+  ;; prefix chain tries `project' before `area-of-focus' and stops at the
+  ;; first non-nil result, so once a project resolves, area-of-focus is
+  ;; never even checked. Combine both into one string at the source so the
+  ;; chain still short-circuits correctly but returns "Area ▸ Project".
+  (advice-add 'org-gtd-agenda--resolve-project :filter-return
+              (lambda (project)
+                (when project
+                  (if-let ((area (org-gtd-agenda--resolve-area-of-focus)))
+                      (format "%s ▸ %s" area project)
+                    project))))
+
+  ;; Fix org-gtd's area-of-focus lookup for project tasks: when a project
+  ;; heading has no explicit CATEGORY set, plain `org-entry-get' silently
+  ;; falls back to the file's base name (standard org behavior for the
+  ;; special CATEGORY property), which org-gtd's project-lookup branch
+  ;; doesn't guard against the way it guards the item's own category. That
+  ;; makes a task look like it belongs to an area named after its file
+  ;; (e.g. "org-gtd-tasks") instead of correctly resolving to nil.
+  ;; (advice-add 'org-gtd-agenda--resolve-area-of-focus :override
+  ;;             (lambda ()
+  ;;               (cond
+  ;;                ((org-gtd-agenda--has-explicit-category-p)
+  ;;                 (let ((category (org-entry-get (point) "CATEGORY")))
+  ;;                   (unless (string= category "???") category)))
+  ;;                ((when-let* ((project-ids (org-entry-get-multivalued-property
+  ;;                                            (point) org-gtd-prop-project-ids))
+  ;;                             (first-id (car project-ids))
+  ;;                             (project-marker (org-id-find first-id 'marker)))
+  ;;                   (org-with-point-at project-marker
+  ;;                     (when (org-gtd-agenda--has-explicit-category-p)
+  ;;                       (org-entry-get (point) "CATEGORY")))))
+  ;;                (t nil))))
+
+  ;; Split the default engage view's "All actions ready to be executed"
+  ;; block into effort-based sections (quick/medium/long/unestimated),
+  ;; leaving the calendar/tickler/delegated blocks untouched.
+  (advice-add 'org-gtd-engage-view-spec :filter-return
+              (lambda (spec)
+                (let ((new-blocks
+                       (mapcan
+                        (lambda (block)
+                          (if (equal (alist-get 'name block)
+                                     "All actions ready to be executed")
+                              (list
+                               '((name . "Quick wins (< 30 min)")
+                                 (type . next-action)
+                                 (effort . (< "0:30")))
+                               '((name . "Medium (30 min - 2 hr)")
+                                 (type . next-action)
+                                 (effort . (between "0:30" "2:00")))
+                               '((name . "Long (> 2 hr)")
+                                 (type . next-action)
+                                 (effort . (> "2:00")))
+                               '((name . "No effort estimate")
+                                 (type . next-action)
+                                 (effort . nil)))
+                            (list block)))
+                        (alist-get 'blocks spec))))
+                  (setf (alist-get 'blocks spec) new-blocks)
+                  spec)))
+
+  ;; Fix someday-review's window jumping between left/right on every "d"
+  ;; (defer). --display-current-item calls plain `pop-to-buffer' with no
+  ;; placement rule, and no popup rule matches its buffer name, so Emacs'
+  ;; default window-selection heuristics pick inconsistently across the
+  ;; kill-old/create-new buffer cycle on each item. Force it to always
+  ;; reuse the current window instead.
+  (advice-add 'org-gtd-someday-review--display-current-item :around
+              (lambda (orig-fn &rest args)
+                (cl-letf* ((real-pop-to-buffer (symbol-function 'pop-to-buffer))
+                           ((symbol-function 'pop-to-buffer)
+                            (lambda (buf &rest _)
+                              (funcall real-pop-to-buffer
+                                       buf '((display-buffer-reuse-window
+                                              display-buffer-same-window))))))
+                  (apply orig-fn args))))
 
   ;; Engage view excluding items tagged "work". org-gtd's tag filter DSL is
   ;; inclusion-only (OR match), so exclusion is done via org-agenda's own
@@ -588,14 +649,14 @@
   ;; Doom-style leader key bindings
   (map! :leader
         (:prefix ("1" . "org-gtd")
-         :desc "Capture"        "c"  #'org-gtd-capture
-         :desc "Engage"         "e"  #'org-gtd-engage
-         :desc "Engage by effort" "E" #'franta/org-gtd-engage-by-effort
-         :desc "Engage (no work)" "N" #'franta/org-gtd-engage-no-work
-         :desc "Engage (Work)"  "w"  #'franta/org-gtd-work-projects
-         :desc "Process inbox"  "p"  #'org-gtd-process-inbox
-         :desc "Show all next"  "n"  #'org-gtd-show-all-next
-         :desc "Stuck projects" "s"  #'org-gtd-reflect-stuck-projects))
+         :desc "Capture"                "c"  #'org-gtd-capture
+         :desc "Engage"                 "e"  #'org-gtd-engage
+         :desc "Engage (no work)"       "N"  #'franta/org-gtd-engage-no-work
+         :desc "Engage (Work)"          "w"  #'franta/org-gtd-work-projects
+         :desc "Command center"         "m"  #'org-gtd-command-center
+         :desc "Process inbox"          "p"  #'org-gtd-process-inbox
+         :desc "Show all next"          "n"  #'org-gtd-show-all-next
+         :desc "Stuck projects"         "s"  #'org-gtd-reflect-stuck-projects))
   ;; Clarify map binding
   (map! :map org-gtd-clarify-mode-map
         :desc "Organize this item" "C-c c" #'org-gtd-organize)
