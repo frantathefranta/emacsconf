@@ -491,6 +491,8 @@
 (load! "~/git/bird-mode/bird-mode.el")
 (add-hook 'bird-mode-hook #'eglot-ensure)
 
+(load! "~/git/emacs-eruby-mode/eruby-mode.el")
+
 (use-package markdown-indent-mode :hook (markdown-mode . markdown-indent-mode))
 
 (use-package! org-gtd
@@ -511,18 +513,86 @@
   ;; Enable per-type refile prompting (recommended)
   ;; Without this, all items auto-refile to first target without prompting
   (org-gtd-refile-to-any-target nil)
+  ;; GTD Horizon 2 areas of focus, prompted for during organize
+  (org-gtd-areas-of-focus '("Work" "Learning" "Homelab" "DN42" "Emacs" "Nix"))
+  ;; Predetermined effort estimates offered when prompted (still editable/free-form)
+  (org-global-properties '(("Effort_ALL" . "0:15 0:30 1:00 2:00 4:00 8:00")))
+  ;; Sort by effort (low first) within org-gtd's next-action/delegated blocks,
+  ;; which are compiled as `tags-todo' blocks and read the `tags' strategy key.
+  (org-agenda-sorting-strategy '((agenda habit-down time-up urgency-down category-keep)
+                                 (todo   urgency-down category-keep)
+                                 (tags   effort-up urgency-down category-keep)
+                                 (search category-keep)))
 
   :config
   (org-edna-mode)
+  ;; Prompt for tags, area of focus, and effort when organizing an item.
+  ;; Effort is only prompted for actions/projects, not calendar/delegated/etc.
+  (defun franta/org-gtd-set-effort ()
+    (when (org-gtd-organize-type-member-p '(single-action project-heading))
+      (org-set-effort)))
+  (setq org-gtd-organize-hooks
+        '(org-gtd-set-area-of-focus
+          org-set-tags-command
+          franta/org-gtd-set-effort))
   ;; Add org-gtd files to your agenda (in :config so org-gtd-directory is defined)
   (setq org-agenda-files (list org-gtd-directory))
   (setq org-gtd-save-after-organize t)
+
+  ;; Show effort estimates in org-gtd agenda views (e.g. org-gtd-engage).
+  ;; org-gtd's prefix DSL (project/area-of-focus fallback chain) has no
+  ;; "effort" element, so append the standard org-agenda %e specifier to
+  ;; whatever prefix string org-gtd builds for every view.
+  (advice-add 'org-gtd-view-lang--expand-prefix :filter-return
+              (lambda (format-string) (concat format-string "%-6e ")))
+
+  ;; Next actions grouped into effort-based sections (quick/medium/long/unestimated)
+  (defun franta/org-gtd-engage-by-effort ()
+    "Show next actions grouped into sections by effort estimate."
+    (interactive)
+    (org-gtd-view-show
+     '((name . "Next Actions by Effort")
+       (blocks . (((name . "Quick wins (< 30 min)")
+                   (type . next-action)
+                   (effort . (< "0:30")))
+                  ((name . "Medium (30 min - 2 hr)")
+                   (type . next-action)
+                   (effort . (between "0:30" "2:00")))
+                  ((name . "Long (> 2 hr)")
+                   (type . next-action)
+                   (effort . (> "2:00")))
+                  ((name . "No effort estimate")
+                   (type . next-action)
+                   (effort . nil)))))))
+
+  ;; Engage view excluding items tagged "work". org-gtd's tag filter DSL is
+  ;; inclusion-only (OR match), so exclusion is done via org-agenda's own
+  ;; org-agenda-tag-filter-preset, let-bound around the (block) agenda call.
+  (defun franta/org-gtd-engage-no-work ()
+    "Show the org-gtd engage view excluding items tagged \"work\"."
+    (interactive)
+    (let ((org-agenda-tag-filter-preset '("-work")))
+      (org-gtd-engage)))
+
+  ;; Work-only next actions, sorted by priority first (overrides the global
+  ;; effort-based `tags' sort strategy just for this call).
+  (defun franta/org-gtd-work-projects ()
+    "Show all active Work next actions, sorted by priority."
+    (interactive)
+    (let ((org-agenda-sorting-strategy '((tags priority-down category-keep))))
+      (org-gtd-view-show
+       '((name . "My Work Items")
+         (type . next-action)
+         (area-of-focus . "Work")))))
 
   ;; Doom-style leader key bindings
   (map! :leader
         (:prefix ("1" . "org-gtd")
          :desc "Capture"        "c"  #'org-gtd-capture
          :desc "Engage"         "e"  #'org-gtd-engage
+         :desc "Engage by effort" "E" #'franta/org-gtd-engage-by-effort
+         :desc "Engage (no work)" "N" #'franta/org-gtd-engage-no-work
+         :desc "Engage (Work)"  "w"  #'franta/org-gtd-work-projects
          :desc "Process inbox"  "p"  #'org-gtd-process-inbox
          :desc "Show all next"  "n"  #'org-gtd-show-all-next
          :desc "Stuck projects" "s"  #'org-gtd-reflect-stuck-projects))
@@ -543,7 +613,7 @@
          :host "znc.franta.us"
          :port 6697
          :tls t
-         :user "znc-admin/hackint"
+         :user "znc-admin@emacs/hackint"
          :pass (lambda (_)
                  (auth-source-pick-first-password
                   :host "ZNC"
