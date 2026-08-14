@@ -71,7 +71,7 @@
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
 
-(setq doom-theme 'ef-melissa-dark)
+(setq doom-theme 'ef-owl)
 ;; (use-package! theme-changer
 ;;   :config
 ;;         (setq calendar-latitude 40)
@@ -625,6 +625,83 @@
                                        buf '((display-buffer-reuse-window
                                               display-buffer-same-window))))))
                   (apply orig-fn args))))
+
+  ;; Fix the actual root cause behind "c" (and possibly "d"): the WIP
+  ;; buffer someday-review displays is a raw org-copy-subtree/paste of the
+  ;; real heading, so it retains the SAME :ID: property as the original.
+  ;; org-id-find's fallback (org-id.el, org-id-find-id-file), when an id
+  ;; isn't yet in the org-id-locations cache, resolves it to whatever
+  ;; org-mode buffer is CURRENTLY SELECTED -- and since the WIP buffer is
+  ;; both current and contains a copy of that same id, org-id-find (used
+  ;; by both org-gtd-someday-review-clarify and -defer) can silently
+  ;; resolve to the disposable WIP copy instead of the real heading.
+  ;; Stripping the copied :ID: prevents that buffer from ever matching.
+  (advice-add 'org-gtd-someday-review--initialize-buffer :after
+              (lambda (_marker buffer)
+                (with-current-buffer buffer
+                  (let ((inhibit-read-only t))
+                    (goto-char (point-min))
+                    (org-entry-delete (point) "ID")))))
+
+  ;; Fix someday-review's "c" (clarify) colliding with itself. When an item
+  ;; has no PREVIOUS_ORG_GTD (i.e. it was captured directly as someday,
+  ;; never previously clarified into another GTD type -- the common case),
+  ;; org-gtd-restore-state hands off to org-gtd-clarify-item, which fetches
+  ;; a WIP buffer keyed by the item's org-id from the SAME cache
+  ;; (org-gtd-wip--get-buffer) that someday-review is using to display that
+  ;; exact item -- reusing/hijacking the review's own buffer mid-session.
+  ;; The original org-gtd-someday-review-clarify then immediately calls
+  ;; --advance regardless, racing its own redisplay against the clarify
+  ;; window that was just opened. Fix: detect the hand-off case up front,
+  ;; detach this item's buffer from org-gtd's cache before reactivating (so
+  ;; clarify-item creates its own instead of colliding), and end the review
+  ;; session instead of advancing, since the user now needs to interact
+  ;; with the full clarify flow rather than a case that finishes on its own.
+  (defun franta/org-gtd-someday-review-clarify ()
+    "Clarify (reactivate) the current item.
+For items with saved prior GTD state, restores it and advances the
+review as normal. For items with no prior state, hands off to a full
+org-gtd-clarify-item session and ends the review, since that flow needs
+further interactive input rather than completing synchronously."
+    (interactive)
+    (let* ((queue (plist-get org-gtd-someday-review--state :queue))
+           (pos (plist-get org-gtd-someday-review--state :position))
+           (item-id (nth pos queue))
+           (marker (org-id-find item-id 'marker))
+           (needs-full-clarify
+            (and marker
+                 (org-with-point-at marker
+                   (null (org-entry-get (point) "PREVIOUS_ORG_GTD"))))))
+      (when marker
+        (let ((detached-buffer (current-buffer))
+              (detached-file (gethash item-id org-gtd-wip--temp-files)))
+          (when needs-full-clarify
+            ;; Detach so org-gtd-clarify-item's buffer-by-id lookup can't
+            ;; find (and reuse) the buffer we're currently displaying.
+            (remhash item-id org-gtd-wip--temp-files))
+          (org-with-point-at marker
+            (org-gtd-reactivate))
+          (when needs-full-clarify
+            ;; org-gtd-clarify-item has switched to its own buffer/window
+            ;; by now, so the detached buffer is no longer current -- safe
+            ;; to clean it up directly here instead of via the normal
+            ;; hash-lookup-based cleanup path (which can't find it anymore).
+            (when (buffer-live-p detached-buffer)
+              (with-current-buffer detached-buffer
+                (set-buffer-modified-p nil))
+              (kill-buffer detached-buffer))
+            (when (and detached-file (file-exists-p detached-file))
+              (delete-file detached-file)))))
+      ;; Update statistics
+      (plist-put org-gtd-someday-review--state :clarified
+                 (1+ (plist-get org-gtd-someday-review--state :clarified)))
+      (if needs-full-clarify
+          (progn
+            (message "Item needs full clarification -- continue in the new buffer. Review session ended.")
+            (org-gtd-someday-review--end-session))
+        (org-gtd-someday-review--advance))))
+  (advice-add 'org-gtd-someday-review-clarify :override
+              #'franta/org-gtd-someday-review-clarify)
 
   ;; Engage view excluding items tagged "work". org-gtd's tag filter DSL is
   ;; inclusion-only (OR match), so exclusion is done via org-agenda's own
