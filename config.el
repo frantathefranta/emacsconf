@@ -322,14 +322,17 @@
 (when (eq system-type 'darwin)
   (require 'acp)
   (require 'agent-shell)
-  (setq agent-shell-anthropic-claude-environment
-        (agent-shell-make-environment-variables
-         "ANTHROPIC_API_KEY" ""
-         "ANTHROPIC_MODEL" "qwen3-coder:30b"
-         "ANTHROPIC_AUTH_TOKEN" "ollama"
-         "ANTHROPIC_BASE_URL" "http://localhost:11434"))
+  (setq agent-shell-pi-environment
+        (let ((url (progn
+                     (let ((auth-source-1password-vault "Work"))
+                       (auth-source-pick-first-password
+                        :host "OSC Inference"
+                        :user "website")))))
+          (agent-shell-make-environment-variables
+           "OPENWEBUI_BASE_URL" (concat "https://" url "/api"))))
+
   (setq agent-shell-session-strategy 'prompt)
-  (setq agent-shell-preferred-agent-config (agent-shell-anthropic-make-claude-code-config))
+  (setq agent-shell-preferred-agent-config (agent-shell-pi-make-config))
   (use-package! agent-shell
     :config
     ;; Evil state-specific RET behavior: insert mode = newline, normal mode = send
@@ -341,6 +344,12 @@
 	      (lambda ()
 	        (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
 		  (evil-emacs-state))))))
+
+  ;; Add keybinding for launching agent-shell
+  (map! :leader
+        (:prefix ("2" . "window")
+         :desc "Launch agent-shell" "s" #'agent-shell))
+
 ;; (use-package! tramp-rpc
 ;;   :after tramp)
 ;; (defun chezmoi--evil-insert-state-enter ()
@@ -740,6 +749,8 @@ further interactive input rather than completing synchronously."
   ;; Quick task actions in agenda view
   (map! :map org-agenda-mode-map
         :desc "GTD quick actions" "C-c ." #'org-gtd-agenda-transient))
+
+(setq projectile-project-search-path '("~/projects"))
 
 (use-package! auth-source-1password
   :config
