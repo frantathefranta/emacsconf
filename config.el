@@ -243,71 +243,32 @@
               (setq eglot-workspace-configuration
                     '(:nil (:nix (:flake (:autoArchive t :autoEvalInputs t ))))))))
 
-(use-package! exercism)
 (use-package! magit-todos
   :after magit
   :config (magit-todos-mode 1))
 
-(when (eq system-type 'darwin)
-  (require 'acp)
-  (require 'agent-shell)
-  (require 'agent-shell-pi)
-  (setq agent-shell-pi-environment
-        (let* ((url-entry (let ((auth-source-1password-vault "Work"))
-                            (car (auth-source-search :host "OSC Inference" :user "website" :max 1))))
-               (url (plist-get url-entry :secret))
-               (api-key-entry (let ((auth-source-1password-vault "Work"))
-                                (car (auth-source-search :host "OSC Inference" :user "password" :max 1))))
-               (api-key (plist-get api-key-entry :secret)))
-          ;; Also set directly for subprocess inheritance
-          (when url-entry
-            (setenv "OPENWEBUI_BASE_URL" (concat url "/api")))
-          (when api-key
-            (setenv "OPENWEBUI_API_KEY" api-key))
-          (append
-           (agent-shell-make-environment-variables
-            "OPENWEBUI_BASE_URL" (concat url "/api"))
-           (when api-key
-             (agent-shell-make-environment-variables
-              "OPENWEBUI_API_KEY" api-key)))))
+(require 'acp)
+(require 'agent-shell)
+(require 'agent-shell-pi)
+;; OpenWebUI configuration
+(setq agent-shell-pi-environment
+      (agent-shell-make-environment-variables
+       "OPENWEBUI_BASE_URL" "https://pzs0708.ai-alpha.osc.edu/api"))
 
-  (setq agent-shell-session-strategy 'prompt)
-  (use-package! agent-shell
-    :config
-    (setq agent-shell-preferred-agent-config (agent-shell-pi-make-agent-config))
-    ;; Evil state-specific RET behavior: insert mode = newline, normal mode = send
-    (evil-define-key 'insert agent-shell-mode-map (kbd "RET") #'newline)
-    (evil-define-key 'normal agent-shell-mode-map (kbd "RET") #'comint-send-input)
+(setq agent-shell-session-strategy 'prompt)
+(use-package! agent-shell
+  :config
+  (setq agent-shell-preferred-agent-config (agent-shell-pi-make-agent-config))
+  ;; Evil state-specific RET behavior: insert mode = newline, normal mode = send
+  (evil-define-key 'insert agent-shell-mode-map (kbd "RET") #'newline)
+  (evil-define-key 'normal agent-shell-mode-map (kbd "RET") #'comint-send-input)
 
-    ;; Configure *agent-shell-diff* buffers to start in Emacs state
-    (add-hook 'diff-mode-hook
-	      (lambda ()
-	        (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
-		  (evil-emacs-state))))))
+  ;; Configure *agent-shell-diff* buffers to start in Emacs state
+  (add-hook 'diff-mode-hook
+	    (lambda ()
+	      (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
+		(evil-emacs-state)))))
 
-
-;; (use-package! tramp-rpc
-;;   :after tramp)
-;; (defun chezmoi--evil-insert-state-enter ()
-;;   "Run after evil-insert-state-entry."
-;;   (chezmoi-template-buffer-display nil (point))
-;;   (remove-hook 'after-change-functions #'chezmoi-template--after-change 1))
-
-;; (defun chezmoi--evil-insert-state-exit ()
-;;   "Run after evil-insert-state-exit."
-;;   (chezmoi-template-buffer-display nil)
-;;   (chezmoi-template-buffer-display t)
-;;   (add-hook 'after-change-functions #'chezmoi-template--after-change nil 1))
-
-;; (defun chezmoi-evil ()
-;;   (if chezmoi-mode
-;;       (progn
-;;         (add-hook 'evil-insert-state-entry-hook #'chezmoi--evil-insert-state-enter nil 1)
-;;         (add-hook 'evil-insert-state-exit-hook #'chezmoi--evil-insert-state-exit nil 1))
-;;     (progn
-;;       (remove-hook 'evil-insert-state-entry-hook #'chezmoi--evil-insert-state-enter 1)
-;;       (remove-hook 'evil-insert-state-exit-hook #'chezmoi--evil-insert-state-exit 1))))
-;; (add-hook 'chezmoi-mode-hook #'chezmoi-evil)
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
@@ -339,35 +300,9 @@
 ;;
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
-;; (use-package uuid :commands uuid-string)
-;; (defun uuid-string ()
-;;   "Make a string form of a UUID directly."
-;;   (uuid))
-;; NOTE All meain functions are from here https://github.com/meain/dotfiles/blob/25863934a8bcab3e1075cf2f7564b1290b77d14b/emacs/.config/emacs/init.el#L2186
-;; (customize-set-variable
-;;  'tramp-password-prompt-regexp
-;;  (concat
-;;   "^.*"
-;;   (regexp-opt
-;;    '("passphrase"))))
-;; (add-to-list 'tramp-connection-properties
-;;              (list (regexp-quote "/ssh:fbartik@bastion2.osc.edu:")
-;;                    "remote-shell" "/bin/bash"))
-                                        ;r(use-package! plz)
-;; (if (eq system-type 'darwin)
-;;   (load "~/.hammerspoon/Spoons/editWithEmacs.spoon/hammerspoon.el")
-;; )
-;; (customize-set-variable 'tramp-encoding-shell "/bin/zsh")
-;; (customize-set-variable
-;;  'tramp-ssh-controlmaster-options
-;;  (concat
-;;  "-o ControlPath=/Users/fbartik/.ssh/cm-%%r@%%h:%%p "
-;;  "-o ControlMaster=auto -o ControlPersist=yes"))
-;; (customize-set-variable 'tramp-use-ssh-controlmaster-options nil)
-(setq tramp-verbose 6)
-;; (setq tramp-terminal-type "tramp")
-;; (setq tramp-shell-prompt-pattern "\\(?:^\\|\r\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*")
-(add-to-list 'warning-suppress-log-types '(lsp-mode)) ;; Necessary because semgrep sends a message everytime it starts
+
+;; Necessary because semgrep sends a message everytime it starts
+(add-to-list 'warning-suppress-log-types '(lsp-mode)) 
 (add-to-list 'warning-suppress-types '(lsp-mode))
 
 (setq +evil-want-o/O-to-continue-comments nil)
@@ -733,6 +668,7 @@ further interactive input rather than completing synchronously."
   (map! :map just-mode-map
         :leader
         "j" #'justl))
+
 (use-package! ghostel
   :ensure t)
 (use-package evil-ghostel
