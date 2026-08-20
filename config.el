@@ -32,34 +32,6 @@
   (setq doom-variable-pitch-font (font-spec :name "ETBembo")))
 
 (setq shell-file-name (executable-find "bash"))
-;; (let* ((variable-tuple
-;;          (cond ((doom-font-exists-p "ETBembo")         '(:font "ETBembo"))
-;;                ((doom-font-exists-p "Source Sans Pro") '(:font "Source Sans Pro"))
-;;                ((doom-font-exists-p "Lucida Grande")   '(:font "Lucida Grande"))
-;;                ((doom-font-exists-p "Verdana")         '(:font "Verdana"))
-;;                ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
-;;                (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
-;;         ;; (base-font-color     (face-foreground 'default nil 'default))
-;;         )
-
-;;    (custom-theme-set-faces
-;;     'user
-;;     `(org-meta-line ((t (,:slant italic))))
-;;     `(org-level-8 ((t (,@variable-tuple))))
-;;     `(org-level-7 ((t (,@variable-tuple))))
-;;     `(org-level-6 ((t (,@variable-tuple))))
-;;     `(org-level-5 ((t (,@variable-tuple))))
-;;     `(org-level-4 ((t (,@variable-tuple :height 1.0))))
-;;     `(org-level-3 ((t (,@variable-tuple :height 1.1))))
-;;     `(org-level-2 ((t (,@variable-tuple :height 1.2))))
-;;     `(org-level-1 ((t (,@variable-tuple :height 1.3 :weight semi-bold :slant normal :width regular))))
-;;     `(org-document-title ((t (,@variable-tuple :height 1.5 :underline t :slant normal :weight semi-bold :width normal))))))
-
-
-
-;; Hasklug doesn't work for Emacs for some reason, it makes the highlighted lines jump back on forth
-;; (setq doom-font (font-spec :family "Hasklug Nerd Font" :size 16))
-;; doom-variable-pitch-font (font-spec :family "Hasklug Nerd Font" :size 16))
 
 ;;
 ;; If you or Emacs can't find your font, use 'M-x describe-font' to look them
@@ -72,22 +44,6 @@
 ;; `load-theme' function. This is the default:
 
 (setq doom-theme 'ef-owl)
-;; (use-package! theme-changer
-;;   :config
-;;         (setq calendar-latitude 40)
-;;         (setq calendar-longitude -83)
-;;         (change-theme 'modus-operandi-tinted 'doom-pine)
-;; )
-;; (custom-theme-set-faces!
-;; 'doom-feather-light
-;; '(org-level-4 :inherit outline-4 :height 1.1)
-;; '(org-level-3 :inherit outline-3 :height 1.2)
-;; '(org-level-2 :inherit outline-2 :height 1.3)
-;; '(org-level-1 :inherit outline-1 :height 1.4)
-;; '(org-document-title :height 1.5 :underline nil))
-;;(toggle-debug-on-error)
-;; This determines the style of line numbers in effect. If set to `nil', line
-;; numbers are disabled. For relative line numbers, set this to `relative'.
 
 (setq-default display-line-numbers-grow-only   t
               display-line-numbers-type        'relative
@@ -96,25 +52,9 @@
 (setq flycheck-disabled-checkers '(proselint))
 (setq ispell-personal-dictionary "~/.config/doom/ispell.dictionary")
 
-;; Set Emacs to open full screen
-
-;; (setq initial-frame-alist '((top . 1) (left . 1) (width . 114) (height . 32)))
-;; If you use `org' and don't want your org files in the default location below,
-;; change `org-directory'. It must be set before org loads!
-;; (setq org-agenda-hide-tags-regexp ".")
-
 (setq org-directory "~/syncthing/org/")
-;; (setq org-agenda-files (list "~/syncthing/org/inbox.org"
-;;                              "~/syncthing/org/agenda.org"
-;;                              "~/syncthing/org/projects.org"
-;;                              "~/syncthing/org/work.org"
-;;                              "~/git/organised_exchange/exchange.org"))
 ;; general org settings
 (after! org
-  ;; (custom-set-faces!
-  ;;   '(org-level-2 :inherit outline-2 :height 1.3 :weight regular)
-  ;;   '(org-level-1 :inherit outline-1 :height 1.4 :weight semi-bold)
-  ;;   '(org-document-title :height 1.5 :underline t :slant normal :weight: semi-bold))
   (add-to-list 'org-tags-exclude-from-inheritance "project")
   (setq org-capture-templates
         `(
@@ -126,21 +66,11 @@
                     "/Entered on/ %U"))))
   (setq org-log-done 'time)
   (setq org-hide-emphasis-markers t)
-  ;; (setq org-todo-keywords
-  ;;       '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|" "DONE(d)")))
-
-  ;; (defun log-todo-next-creation-date (&rest ignore)
-  ;;   "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
-  ;;   (when (and (string= (org-get-todo-state) "NEXT")
-  ;;              (not (org-entry-get nil "ACTIVATED")))
-  ;;     (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
-
-  ;; (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
   (with-eval-after-load 'org (global-org-modern-mode))
   (custom-set-variables '(org-modern-table nil))
   )
 
-                                        ; Automatic table of contents
+;; Automatic table of contents
 (if (require 'toc-org nil t)
     (progn
       (add-hook 'org-mode-hook 'toc-org-mode)
@@ -148,8 +78,7 @@
   (warn "toc-org not found"))
 
 (after! org-element
-  (setq org-element-use-cache nil)
-  )
+  (setq org-element-use-cache nil))
 ;; org-roam settings
 (setq org-roam-directory (file-truename "~/syncthing/org/org-roam"))
 (after! org-roam
@@ -322,19 +251,30 @@
 (when (eq system-type 'darwin)
   (require 'acp)
   (require 'agent-shell)
+  (require 'agent-shell-pi)
   (setq agent-shell-pi-environment
-        (let ((url (progn
-                     (let ((auth-source-1password-vault "Work"))
-                       (auth-source-pick-first-password
-                        :host "OSC Inference"
-                        :user "website")))))
-          (agent-shell-make-environment-variables
-           "OPENWEBUI_BASE_URL" (concat "https://" url "/api"))))
+        (let* ((url-entry (let ((auth-source-1password-vault "Work"))
+                            (car (auth-source-search :host "OSC Inference" :user "website" :max 1))))
+               (url (plist-get url-entry :secret))
+               (api-key-entry (let ((auth-source-1password-vault "Work"))
+                                (car (auth-source-search :host "OSC Inference" :user "password" :max 1))))
+               (api-key (plist-get api-key-entry :secret)))
+          ;; Also set directly for subprocess inheritance
+          (when url-entry
+            (setenv "OPENWEBUI_BASE_URL" (concat url "/api")))
+          (when api-key
+            (setenv "OPENWEBUI_API_KEY" api-key))
+          (append
+           (agent-shell-make-environment-variables
+            "OPENWEBUI_BASE_URL" (concat url "/api"))
+           (when api-key
+             (agent-shell-make-environment-variables
+              "OPENWEBUI_API_KEY" api-key)))))
 
   (setq agent-shell-session-strategy 'prompt)
-  (setq agent-shell-preferred-agent-config (agent-shell-pi-make-config))
   (use-package! agent-shell
     :config
+    (setq agent-shell-preferred-agent-config (agent-shell-pi-make-agent-config))
     ;; Evil state-specific RET behavior: insert mode = newline, normal mode = send
     (evil-define-key 'insert agent-shell-mode-map (kbd "RET") #'newline)
     (evil-define-key 'normal agent-shell-mode-map (kbd "RET") #'comint-send-input)
@@ -345,10 +285,6 @@
 	        (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
 		  (evil-emacs-state))))))
 
-  ;; Add keybinding for launching agent-shell
-  (map! :leader
-        (:prefix ("2" . "window")
-         :desc "Launch agent-shell" "s" #'agent-shell))
 
 ;; (use-package! tramp-rpc
 ;;   :after tramp)
