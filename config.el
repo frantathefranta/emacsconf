@@ -269,6 +269,10 @@
 	      (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
 		(evil-emacs-state)))))
 
+;; Add keybinding for launching agent-shell
+(map! :leader
+      (:prefix ("2" . "window")
+       :desc "Launch agent-shell" "s" #'agent-shell))
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
@@ -371,7 +375,8 @@
 (load! "~/git/bird-mode/bird-mode.el")
 (add-hook 'bird-mode-hook #'eglot-ensure)
 
-(load! "~/git/emacs-eruby-mode/eruby-mode.el")
+(when (eq system-type 'darwin)
+  (load! "~/git/emacs-eruby-mode/eruby-mode.el"))
 
 (use-package markdown-indent-mode :hook (markdown-mode . markdown-indent-mode))
 
