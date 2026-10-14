@@ -679,3 +679,5 @@ further interactive input rather than completing synchronously."
 (use-package evil-ghostel
   :after (ghostel evil)
   :hook (ghostel-mode . evil-ghostel-mode))
+
+(use-package! puppet-ts-mode)
