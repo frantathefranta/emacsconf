@@ -253,7 +253,7 @@
 ;; OpenWebUI configuration
 (setq agent-shell-pi-environment
       (agent-shell-make-environment-variables
-       "OPENWEBUI_BASE_URL" "https://pzs0708.ai-alpha.osc.edu/api"))
+       "OPENWEBUI_BASE_URL" "https://pzs0708.ai-beta.osc.edu/api"))
 
 (setq agent-shell-session-strategy 'prompt)
 (use-package! agent-shell
@@ -681,3 +681,31 @@ further interactive input rather than completing synchronously."
   :hook (ghostel-mode . evil-ghostel-mode))
 
 (use-package! puppet-ts-mode)
+
+
+(defun my/mu4e-save-to-isuzu ()
+    "Copy the message at point to the Isuzu knowledge base."
+    (interactive)
+    (let* ((directory (expand-file-name "~/projects/org-isuzu-rodeo/mail"))
+        (msg (mu4e-message-at-point))
+        (date (mu4e-message-field msg :date))
+        (subject (or (mu4e-message-field msg :subject) "untitled"))
+        (slug (string-trim
+                (replace-regexp-in-string
+                "[^[:alnum:]]+" "-" (downcase subject))
+                "-+" "-+"))
+        (slug (if (string-empty-p slug) "untitled"
+                (substring slug 0 (min 50 (length slug)))))
+        (basename (concat (format-time-string "%Y-%m-%d" date)
+                            "_" slug))
+        (destination (expand-file-name
+                        (concat basename ".eml") directory))
+        (number 2))
+    (while (file-exists-p destination)
+        (setq destination
+            (expand-file-name
+            (format "%s-%d.eml" basename number) directory)
+            number (1+ number)))
+    (copy-file (mu4e-message-readable-path) destination nil)
+    (message "Saved email to %s" destination)
+    destination))
