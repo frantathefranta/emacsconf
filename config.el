@@ -709,3 +709,6 @@ further interactive input rather than completing synchronously."
     (copy-file (mu4e-message-readable-path) destination nil)
     (message "Saved email to %s" destination)
     destination))
+
+;; Disable mouse highlighting
+(setq mouse-highlight nil)
