@@ -22,11 +22,14 @@
 ;;
 (when (doom-font-exists-p "Aporetic Sans Mono")
   (setq doom-font                (font-spec :name "Aporetic Sans Mono" :width 'regular :size 18 :slant 'normal)))
-;; Emacs when launched in daemon doesn't set a font
-(defun franta/load-fonts-in-client ()
-  (setq doom-font                (font-spec :name "Aporetic Sans Mono" :width 'regular :size 18 :slant 'normal))
-  (doom/reload-font))
-(add-hook 'after-init-hook 'franta/load-fonts-in-client)
+;; Daemon startup has no graphical frame in which to initialize icon fonts.
+(defun franta/load-fonts-in-client (frame)
+  "Reload Doom fonts when graphical client FRAME is created."
+  (when (display-graphic-p frame)
+    (with-selected-frame frame
+      (setq doom-font (font-spec :name "Aporetic Sans Mono" :width 'regular :size 18 :slant 'normal))
+      (doom/reload-font))))
+(add-hook 'after-make-frame-functions #'franta/load-fonts-in-client)
 
 (when (doom-font-exists-p "ETBembo")
   (setq doom-variable-pitch-font (font-spec :name "ETBembo")))
@@ -67,7 +70,7 @@
   (setq org-log-done 'time)
   (setq org-hide-emphasis-markers t)
   (with-eval-after-load 'org (global-org-modern-mode))
-  (custom-set-variables '(org-modern-table nil))
+  (custom-set-variables '(org-modern-table t))
   )
 
 ;; Automatic table of contents
@@ -626,7 +629,7 @@ further interactive input rather than completing synchronously."
   (map! :map org-agenda-mode-map
         :desc "GTD quick actions" "C-c ." #'org-gtd-agenda-transient))
 
-(setq projectile-project-search-path '("~/projects"))
+(setq projectile-project-search-path '("~/projects" "~/work"))
 
 (use-package! auth-source-1password
   :config
