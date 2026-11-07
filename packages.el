@@ -21,6 +21,8 @@
 (package! toc-org)
 (package! musicbrainz)
 (package! url)
+(package! denote)
+(package! denote-journal)
 (unpin! org-roam)
 (package! org-roam-ui)
 (package! consult-org-roam)

@@ -82,6 +82,103 @@
 
 (after! org-element
   (setq org-element-use-cache nil))
+;; Denote and org-roam supply their own headers; avoid duplicate title snippets.
+(set-file-template! 'org-mode :ignore t)
+
+;; Denote trial: new notes only; keep org-roam and GTD unchanged.
+(use-package! denote
+  :commands (denote denote-open-or-create denote-link denote-backlinks
+             denote-rename-file)
+  :init
+  (setq denote-directory (expand-file-name "~/syncthing/org/denote/")
+        denote-file-type 'org
+        denote-known-keywords '("docs" "journal" "memo")
+        denote-prompts '(title keywords template))
+  (map! :leader
+        (:prefix ("n D" . "denote")
+         :desc "New note"     "n" #'denote
+         :desc "Find or create note" "f" #'denote-open-or-create
+         :desc "Insert link"  "l" #'denote-link
+         :desc "Backlinks"    "b" #'denote-backlinks
+         :desc "Rename note"  "r" #'denote-rename-file
+         :desc "Search notes" "s" (cmd! (consult-ripgrep denote-directory))))
+  :config
+  (setf (alist-get 'memo denote-templates)
+        "* Context\n\n* Notes\n\n* Tasks\n\n* Links\n"
+        (alist-get 'blank denote-templates) ""
+        (alist-get 'journal denote-templates)
+        "#+category: Journal\n\n* Tasks\n\n* Notes\n"))
+
+;; Daily journal: unfinished scheduled tasks stay on subsequent days' agendas.
+(use-package! denote-journal
+  :commands (denote-journal-new-or-existing-entry)
+  :init
+  (setq denote-journal-directory
+        (expand-file-name "journal/" denote-directory)
+        denote-journal-interval 'daily
+        denote-journal-title-format 'day-date-month-year)
+  (map! :leader
+        :desc "Today's journal" "n D j" #'denote-journal-new-or-existing-entry
+        :desc "Daily agenda with carry-forward" "n D a" (cmd! (org-agenda nil "J"))))
+
+(defun franta/journal-schedule-tasks ()
+  "Schedule undated open tasks for this journal file's date before saving.
+Never change an explicit schedule or deadline.  Documentation is unaffected."
+  (when (and buffer-file-name
+             (file-in-directory-p buffer-file-name denote-journal-directory)
+             (string-match "\\`\\([0-9]\\{4\\}\\)\\([0-9]\\{2\\}\\)\\([0-9]\\{2\\}\\)T"
+                           (file-name-nondirectory buffer-file-name)))
+    (let ((date (format "%s-%s-%s"
+                        (match-string 1 (file-name-nondirectory buffer-file-name))
+                        (match-string 2 (file-name-nondirectory buffer-file-name))
+                        (match-string 3 (file-name-nondirectory buffer-file-name)))))
+      (save-excursion
+        (save-restriction
+          (widen)
+          (org-map-entries
+           (lambda ()
+             (when (and (member (org-get-todo-state) org-not-done-keywords)
+                        (not (org-entry-get nil "SCHEDULED"))
+                        (not (org-entry-get nil "DEADLINE")))
+               (org-schedule nil date)))
+           nil nil))))))
+
+(defun franta/journal-setup ()
+  "Enable automatic scheduling in journal buffers."
+  (when (and buffer-file-name
+             (file-in-directory-p buffer-file-name denote-journal-directory))
+    (add-hook 'before-save-hook #'franta/journal-schedule-tasks nil t)))
+
+(defun franta/denote-category-from-title (category)
+  "Replace filename fallback CATEGORY with the title in non-journal notes.
+Leave custom categories and journal labels unchanged."
+  (if (and buffer-file-name
+           (file-in-directory-p buffer-file-name denote-directory)
+           (not (file-in-directory-p buffer-file-name denote-journal-directory))
+           (equal category (file-name-base buffer-file-name)))
+      (let ((title (cadr (assoc "TITLE" (org-collect-keywords '("TITLE"))))))
+        (if (and title (not (string-empty-p title))) title category))
+    category))
+
+(after! org
+  (add-hook 'org-mode-hook #'franta/journal-setup)
+  ;; Remove the earlier implementation when re-evaluating this configuration.
+  (advice-remove 'org-refresh-category-properties #'franta/denote-category-from-title)
+  (advice-add 'org-get-category :filter-return #'franta/denote-category-from-title)
+  ;; Scan notes and journals separately: Org's directory scanning is not recursive.
+  (add-to-list 'org-agenda-files denote-directory t)
+  (add-to-list 'org-agenda-files denote-journal-directory t))
+
+(after! org-agenda
+  (add-to-list 'org-agenda-custom-commands
+               '("J" "Daily agenda with carry-forward" agenda ""
+                 ((org-agenda-span 1)
+                  (org-agenda-start-day "0d")
+                  (org-agenda-skip-scheduled-if-done t)
+                  (org-agenda-skip-deadline-if-done t)
+                  (org-agenda-skip-scheduled-if-deadline-is-shown nil)
+                  (org-scheduled-past-days 365000)))))
+
 ;; org-roam settings
 (setq org-roam-directory (file-truename "~/syncthing/org/org-roam"))
 (after! org-roam
@@ -425,8 +522,9 @@
         '(org-gtd-set-area-of-focus
           org-set-tags-command
           franta/org-gtd-set-effort))
-  ;; Add org-gtd files to your agenda (in :config so org-gtd-directory is defined)
-  (setq org-agenda-files (list org-gtd-directory))
+  ;; Keep GTD, Denote notes, and daily journals in the agenda when org-gtd loads.
+  (setq org-agenda-files
+        (list org-gtd-directory denote-directory denote-journal-directory))
   (setq org-gtd-save-after-organize t)
 
   ;; Show effort estimates in org-gtd agenda views (e.g. org-gtd-engage).
