@@ -85,6 +85,10 @@
 ;; Denote and org-roam supply their own headers; avoid duplicate title snippets.
 (set-file-template! 'org-mode :ignore t)
 
+(map! :leader
+      :desc "Open Journelly" "n J"
+      (cmd! (find-file "~/Library/Mobile Documents/iCloud~com~xenodium~Journelly/Documents/Journelly.org")))
+
 ;; Denote trial: new notes only; keep org-roam and GTD unchanged.
 (use-package! denote
   :commands (denote denote-open-or-create denote-link denote-backlinks
@@ -96,7 +100,6 @@
         denote-prompts '(title keywords template))
   (map! :leader
         (:prefix ("n D" . "denote")
-         :desc "New note"     "n" #'denote
          :desc "Find or create note" "f" #'denote-open-or-create
          :desc "Insert link"  "l" #'denote-link
          :desc "Backlinks"    "b" #'denote-backlinks
@@ -350,6 +353,13 @@ Leave custom categories and journal labels unchanged."
 (require 'acp)
 (require 'agent-shell)
 (require 'agent-shell-pi)
+(setq agent-shell-pi-acp-command
+      '("nono" "wrap"
+         "--silent"
+         "--profile" "pi"
+         "--allow" "."
+         "--" "pi-acp"))
+
 ;; OpenWebUI configuration
 (setq agent-shell-pi-environment
       (agent-shell-make-environment-variables
