@@ -786,8 +786,13 @@ further interactive input rather than completing synchronously."
         "j" #'justl))
 
 (use-package! ghostel
-  :ensure t)
-(use-package evil-ghostel
+  :commands (ghostel ghostel-new)
+  :init
+  (map! :leader
+        :desc "Open Ghostel"     "o t" #'ghostel
+        :desc "New Ghostel"      "o T" #'ghostel-new))
+
+(use-package! evil-ghostel
   :after (ghostel evil)
   :hook (ghostel-mode . evil-ghostel-mode))
 
